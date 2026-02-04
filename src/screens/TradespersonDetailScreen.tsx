@@ -24,6 +24,14 @@ const tradeColors: Record<TradeType, string> = {
   mechanic: '#1f2937',
 };
 
+const tradeLabels: Record<TradeType, string> = {
+  electrician: 'Electricista',
+  plumber: 'Plomero',
+  carpenter: 'Carpintero',
+  bricklayer: 'Albañil',
+  mechanic: 'Mecánico',
+};
+
 export default function TradespersonDetailScreen() {
   const route = useRoute<TradespersonDetailRouteProp>();
   const navigation = useNavigation();
@@ -34,20 +42,20 @@ export default function TradespersonDetailScreen() {
   if (!tradesperson) {
     return (
       <View style={styles.container}>
-        <Text>Tradesperson not found</Text>
+        <Text>Profesional no encontrado</Text>
       </View>
     );
   }
 
   const handleSendMessage = () => {
-    Alert.alert('Message', `Start conversation with ${tradesperson.name}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Send', onPress: () => Alert.alert('Success', 'Message sent!') },
+    Alert.alert('Mensaje', `¿Iniciar conversación con ${tradesperson.name}?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Enviar', onPress: () => Alert.alert('Éxito', '¡Mensaje enviado!') },
     ]);
   };
 
   const handleCall = () => {
-    Alert.alert('Call', `Call ${tradesperson.name} at ${tradesperson.phoneNumber}?`);
+    Alert.alert('Llamar', `¿Llamar a ${tradesperson.name} al ${tradesperson.phoneNumber}?`);
   };
 
   const renderStars = (rating: number) => {
@@ -86,36 +94,36 @@ export default function TradespersonDetailScreen() {
             ]}
           >
             <Text style={styles.tradeBadgeText}>
-              {tradesperson.trade.charAt(0).toUpperCase() + tradesperson.trade.slice(1)}
+              {tradeLabels[tradesperson.trade]}
             </Text>
           </View>
-          <Text style={styles.experience}>{tradesperson.yearsExperience} years experience</Text>
+          <Text style={styles.experience}>{tradesperson.yearsExperience} años de experiencia</Text>
         </View>
 
         {/* Rating */}
         <View style={styles.ratingRow}>
           <View style={styles.stars}>{renderStars(tradesperson.rating)}</View>
           <Text style={styles.ratingText}>
-            {tradesperson.rating} ({tradesperson.reviews.length} reviews)
+            {tradesperson.rating} ({tradesperson.reviews.length} reseñas)
           </Text>
         </View>
 
         {/* Price */}
         <View style={styles.priceRow}>
           <Ionicons name="cash-outline" size={20} color="#059669" />
-          <Text style={styles.priceText}>${tradesperson.hourlyRate}/hour</Text>
+          <Text style={styles.priceText}>${tradesperson.hourlyRate}/hora</Text>
         </View>
       </View>
 
       {/* Bio */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={styles.sectionTitle}>Acerca de</Text>
         <Text style={styles.bioText}>{tradesperson.bio}</Text>
       </View>
 
       {/* Credentials */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Credentials</Text>
+        <Text style={styles.sectionTitle}>Credenciales</Text>
         {tradesperson.credentials.map((credential, index) => (
           <View key={index} style={styles.credentialItem}>
             <Ionicons name="ribbon" size={18} color="#2563eb" />
@@ -126,7 +134,7 @@ export default function TradespersonDetailScreen() {
 
       {/* Availability */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Availability</Text>
+        <Text style={styles.sectionTitle}>Disponibilidad</Text>
         {tradesperson.availability.map((day, index) => (
           <View key={index} style={styles.availabilityRow}>
             <Text style={styles.dayText}>{day.day}</Text>
@@ -139,7 +147,7 @@ export default function TradespersonDetailScreen() {
                 ))}
               </View>
             ) : (
-              <Text style={styles.unavailableText}>Unavailable</Text>
+              <Text style={styles.unavailableText}>No disponible</Text>
             )}
           </View>
         ))}
@@ -147,7 +155,7 @@ export default function TradespersonDetailScreen() {
 
       {/* Reviews */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Reviews</Text>
+        <Text style={styles.sectionTitle}>Reseñas</Text>
         {tradesperson.reviews.map((review) => (
           <View key={review.id} style={styles.reviewCard}>
             <View style={styles.reviewHeader}>
@@ -164,11 +172,11 @@ export default function TradespersonDetailScreen() {
       <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.callButton} onPress={handleCall}>
           <Ionicons name="call" size={20} color="white" />
-          <Text style={styles.callButtonText}>Call</Text>
+          <Text style={styles.callButtonText}>Llamar</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.messageButton} onPress={handleSendMessage}>
           <Ionicons name="chatbubble" size={20} color="white" />
-          <Text style={styles.messageButtonText}>Message</Text>
+          <Text style={styles.messageButtonText}>Mensaje</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

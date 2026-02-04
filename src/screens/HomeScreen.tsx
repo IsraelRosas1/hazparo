@@ -40,6 +40,14 @@ const tradeColors: Record<TradeType, string> = {
   mechanic: '#1f2937',
 };
 
+const tradeLabels: Record<TradeType, string> = {
+  electrician: 'Electricista',
+  plumber: 'Plomero',
+  carpenter: 'Carpintero',
+  bricklayer: 'Albañil',
+  mechanic: 'Mecánico',
+};
+
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [selectedTrade, setSelectedTrade] = useState<TradeType | null>(null);
@@ -135,7 +143,7 @@ export default function HomeScreen() {
         <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for tradespeople..."
+          placeholder="Buscar profesionales..."
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -154,7 +162,7 @@ export default function HomeScreen() {
             onPress={() => setSelectedTrade(null)}
           >
             <Text style={[styles.filterText, selectedTrade === null && styles.filterTextActive]}>
-              All
+              Todos
             </Text>
           </TouchableOpacity>
           {trades.map((trade) => (
@@ -179,7 +187,7 @@ export default function HomeScreen() {
                   selectedTrade === trade && { color: tradeColors[trade] },
                 ]}
               >
-                {trade.charAt(0).toUpperCase() + trade.slice(1)}
+                {tradeLabels[trade]}
               </Text>
             </TouchableOpacity>
           ))}
@@ -189,7 +197,7 @@ export default function HomeScreen() {
       {/* Results count */}
       <View style={styles.resultsContainer}>
         <Text style={styles.resultsText}>
-          {filteredTradespeople.length} {filteredTradespeople.length === 1 ? 'tradesperson' : 'tradespeople'} nearby
+          {filteredTradespeople.length} {filteredTradespeople.length === 1 ? 'profesional' : 'profesionales'} cerca
         </Text>
       </View>
     </View>

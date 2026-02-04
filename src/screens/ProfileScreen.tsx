@@ -13,33 +13,33 @@ import { mockUser } from '../data/mockData';
 
 export default function ProfileScreen() {
   const handleEditProfile = () => {
-    Alert.alert('Edit Profile', 'Profile editing coming soon!');
+    Alert.alert('Editar Perfil', '¡Edición de perfil próximamente!');
   };
 
   const handleSettings = () => {
-    Alert.alert('Settings', 'Settings page coming soon!');
+    Alert.alert('Configuración', '¡Página de configuración próximamente!');
   };
 
   const handlePaymentMethods = () => {
-    Alert.alert('Payment Methods', 'Payment methods management coming soon!');
+    Alert.alert('Métodos de Pago', '¡Gestión de métodos de pago próximamente!');
   };
 
   const handleBookingHistory = () => {
-    Alert.alert('Booking History', 'Booking history coming soon!');
+    Alert.alert('Historial de Reservas', '¡Historial de reservas próximamente!');
   };
 
   const handleSavedTradespeople = () => {
-    Alert.alert('Saved', `You have ${mockUser.savedTradespeople.length} saved tradespeople`);
+    Alert.alert('Guardados', `Tienes ${mockUser.savedTradespeople.length} profesionales guardados`);
   };
 
   const handleHelp = () => {
-    Alert.alert('Help & Support', 'Help center coming soon!');
+    Alert.alert('Ayuda y Soporte', '¡Centro de ayuda próximamente!');
   };
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', style: 'destructive', onPress: () => Alert.alert('Logged out') },
+    Alert.alert('Cerrar Sesión', '¿Estás seguro de que quieres cerrar sesión?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Cerrar Sesión', style: 'destructive', onPress: () => Alert.alert('Sesión cerrada') },
     ]);
   };
 
@@ -47,7 +47,7 @@ export default function ProfileScreen() {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>Perfil</Text>
         <TouchableOpacity onPress={handleSettings}>
           <Ionicons name="settings-outline" size={24} color="#2563eb" />
         </TouchableOpacity>
@@ -60,31 +60,31 @@ export default function ProfileScreen() {
         <Text style={styles.userEmail}>{mockUser.email}</Text>
         <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
           <Ionicons name="pencil" size={16} color="white" />
-          <Text style={styles.editButtonText}>Edit Profile</Text>
+          <Text style={styles.editButtonText}>Editar Perfil</Text>
         </TouchableOpacity>
       </View>
 
       {/* Account Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={styles.sectionTitle}>Cuenta</Text>
         <TouchableOpacity style={styles.menuItem} onPress={handlePaymentMethods}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="card-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Payment Methods</Text>
+            <Text style={styles.menuItemText}>Métodos de Pago</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={handleBookingHistory}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="time-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Booking History</Text>
+            <Text style={styles.menuItemText}>Historial de Reservas</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={handleSavedTradespeople}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="heart-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Saved Tradespeople</Text>
+            <Text style={styles.menuItemText}>Profesionales Guardados</Text>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{mockUser.savedTradespeople.length}</Text>
             </View>
@@ -95,28 +95,28 @@ export default function ProfileScreen() {
 
       {/* Preferences Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferences</Text>
+        <Text style={styles.sectionTitle}>Preferencias</Text>
         <TouchableOpacity style={styles.menuItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="notifications-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Notifications</Text>
+            <Text style={styles.menuItemText}>Notificaciones</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="location-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Location</Text>
+            <Text style={styles.menuItemText}>Ubicación</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="language-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Language</Text>
+            <Text style={styles.menuItemText}>Idioma</Text>
           </View>
           <View style={styles.menuItemLeft}>
-            <Text style={styles.menuItemValue}>English</Text>
+            <Text style={styles.menuItemValue}>Español</Text>
             <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
           </View>
         </TouchableOpacity>
@@ -124,25 +124,25 @@ export default function ProfileScreen() {
 
       {/* Support Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Support</Text>
+        <Text style={styles.sectionTitle}>Soporte</Text>
         <TouchableOpacity style={styles.menuItem} onPress={handleHelp}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="help-circle-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Help & Support</Text>
+            <Text style={styles.menuItemText}>Ayuda y Soporte</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="document-text-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Terms & Conditions</Text>
+            <Text style={styles.menuItemText}>Términos y Condiciones</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem}>
           <View style={styles.menuItemLeft}>
             <Ionicons name="shield-outline" size={22} color="#2563eb" />
-            <Text style={styles.menuItemText}>Privacy Policy</Text>
+            <Text style={styles.menuItemText}>Política de Privacidad</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
         </TouchableOpacity>
@@ -151,11 +151,11 @@ export default function ProfileScreen() {
       {/* Logout */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Ionicons name="log-out-outline" size={20} color="#dc2626" />
-        <Text style={styles.logoutText}>Logout</Text>
+        <Text style={styles.logoutText}>Cerrar Sesión</Text>
       </TouchableOpacity>
 
       {/* Version */}
-      <Text style={styles.version}>Version 1.0.0</Text>
+      <Text style={styles.version}>Versión 1.0.0</Text>
     </ScrollView>
   );
 }

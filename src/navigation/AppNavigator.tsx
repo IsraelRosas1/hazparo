@@ -48,9 +48,9 @@ function BottomTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Messages" component={MessagesScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
+      <Tab.Screen name="Messages" component={MessagesScreen} options={{ title: 'Mensajes' }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
     </Tab.Navigator>
   );
 }
@@ -67,7 +67,7 @@ export default function AppNavigator() {
         <Stack.Screen
           name="TradespersonDetail"
           component={TradespersonDetailScreen}
-          options={{ title: 'Tradesperson Details' }}
+          options={{ title: 'Detalles del Profesional' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

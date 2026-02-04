@@ -49,7 +49,7 @@ export default function MessagesScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Messages</Text>
+        <Text style={styles.headerTitle}>Mensajes</Text>
         <TouchableOpacity>
           <Ionicons name="create-outline" size={24} color="#2563eb" />
         </TouchableOpacity>
@@ -66,9 +66,9 @@ export default function MessagesScreen() {
       ) : (
         <View style={styles.emptyContainer}>
           <Ionicons name="chatbubbles-outline" size={64} color="#9ca3af" />
-          <Text style={styles.emptyTitle}>No messages yet</Text>
+          <Text style={styles.emptyTitle}>No hay mensajes aún</Text>
           <Text style={styles.emptyText}>
-            Start a conversation with a tradesperson to see messages here
+            Inicia una conversación con un profesional para ver mensajes aquí
           </Text>
         </View>
       )}
