@@ -8,6 +8,8 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  Modal,
+  FlatList,
 } from 'react-native';
 import MapView, { Marker, Circle } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
@@ -57,6 +59,9 @@ export default function HomeScreen() {
 // 1. Keep a master list of localized people so they don't 'reset'
   const [masterTradespeople, setMasterTradespeople] = useState<Tradesperson[]>([]);
   const [filteredTradespeople, setFilteredTradespeople] = useState<Tradesperson[]>([]);
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+  const [searchModalQuery, setSearchModalQuery] = useState('');
+  const [selectedModalTrade, setSelectedModalTrade] = useState<TradeType | null>(null);
 
   const requestLocationPermission = async () => {
     try {
@@ -136,6 +141,23 @@ export default function HomeScreen() {
     navigation.navigate('TradespersonDetail', { tradespersonId: tradesperson.id });
   };
 
+  const getFilteredTradespeopleForModal = () => {
+    let result = masterTradespeople;
+    
+    if (selectedModalTrade) {
+      result = result.filter(tp => tp.trade === selectedModalTrade);
+    }
+    
+    if (searchModalQuery) {
+      const query = searchModalQuery.toLowerCase();
+      result = result.filter(tp => 
+        tp.name.toLowerCase().includes(query)
+      );
+    }
+
+    return result;
+  };
+
   const trades: TradeType[] = ['electrician', 'bricklayer', 'plumber', 'carpenter', 'mechanic'];
 
   if (!userLocation) {
@@ -182,20 +204,16 @@ export default function HomeScreen() {
       </MapView>
 
       {/* Search bar */}
-      <View style={styles.searchContainer}>
+      <TouchableOpacity 
+        style={styles.searchContainer}
+        onPress={() => setIsSearchModalVisible(true)}
+      >
         <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar profesionales..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery ? (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={20} color="#6b7280" />
-          </TouchableOpacity>
-        ) : null}
-      </View>
+        <Text style={styles.searchPlaceholder}>
+          {selectedTrade ? tradeLabels[selectedTrade] : 'Seleccionar profesión...'}
+        </Text>
+        <Ionicons name="chevron-down" size={20} color="#6b7280" />
+      </TouchableOpacity>
 
       {/* Trade type filters */}
       <View style={styles.filterContainer}>
@@ -243,6 +261,117 @@ export default function HomeScreen() {
           {filteredTradespeople.length} {filteredTradespeople.length === 1 ? 'profesional' : 'profesionales'} cerca
         </Text>
       </View>
+
+      {/* Trade Selection Modal */}
+      <Modal
+        visible={isSearchModalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => {
+          setIsSearchModalVisible(false);
+          setSearchModalQuery('');
+          setSelectedModalTrade(null);
+        }}
+      >
+        <View style={styles.modalFullScreen}>
+          {/* Modal Header */}
+          <View style={styles.modalHeader}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => {
+                if (selectedModalTrade) {
+                  setSelectedModalTrade(null);
+                } else {
+                  setIsSearchModalVisible(false);
+                  setSearchModalQuery('');
+                }
+              }}
+            >
+              <Ionicons name={selectedModalTrade ? "arrow-back" : "close"} size={28} color="#6b7280" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>
+              {selectedModalTrade ? tradeLabels[selectedModalTrade] : 'Seleccionar Profesional'}
+            </Text>
+            <View style={{ width: 28 }} />
+          </View>
+
+          {/* Search Input */}
+          <View style={styles.searchInputContainer}>
+            <Ionicons name="search" size={20} color="#6b7280" />
+            <TextInput
+              style={styles.modalSearchInput}
+              placeholder={selectedModalTrade ? "Buscar en esta profesión..." : "Buscar profesional..."}
+              placeholderTextColor="#9ca3af"
+              value={searchModalQuery}
+              onChangeText={setSearchModalQuery}
+            />
+            {searchModalQuery && (
+              <TouchableOpacity onPress={() => setSearchModalQuery('')}>
+                <Ionicons name="close-circle" size={20} color="#d1d5db" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Content */}
+          {!selectedModalTrade ? (
+            /* Trade Types List */
+            <FlatList
+              data={trades}
+              keyExtractor={(item) => item}
+              renderItem={({ item: trade }) => {
+                const tradeCount = masterTradespeople.filter(tp => tp.trade === trade).length;
+                return (
+                  <TouchableOpacity
+                    style={styles.tradeItem}
+                    onPress={() => setSelectedModalTrade(trade)}
+                  >
+                    <View style={[styles.tradeIconModal, { backgroundColor: tradeColors[trade] }]}>
+                      <Ionicons name={tradeIcons[trade]} size={24} color="white" />
+                    </View>
+                    <View style={styles.tradeInfo}>
+                      <Text style={styles.tradeItemText}>{tradeLabels[trade]}</Text>
+                      <Text style={styles.tradeCount}>{tradeCount} {tradeCount === 1 ? 'profesional' : 'profesionales'}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          ) : (
+            /* Tradespeople List for Selected Trade */
+            <FlatList
+              data={getFilteredTradespeopleForModal()}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item: tradesperson }) => (
+                <TouchableOpacity
+                  style={styles.tradespersonItem}
+                  onPress={() => {
+                    handleMarkerPress(tradesperson);
+                    setIsSearchModalVisible(false);
+                    setSearchModalQuery('');
+                    setSelectedModalTrade(null);
+                  }}
+                >
+                  <View style={[styles.tradespersonIconModal, { backgroundColor: tradeColors[tradesperson.trade] }]}>
+                    <Ionicons name={tradeIcons[tradesperson.trade]} size={24} color="white" />
+                  </View>
+                  <View style={styles.tradespersonInfo}>
+                    <Text style={styles.tradespersonName}>{tradesperson.name}</Text>
+                    <Text style={styles.tradespersonTrade}>${tradesperson.hourlyRate}/hr</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                <View style={styles.emptyState}>
+                  <Ionicons name="search" size={48} color="#d1d5db" />
+                  <Text style={styles.emptyStateText}>No se encontraron profesionales</Text>
+                </View>
+              }
+            />
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -339,5 +468,131 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
+  },
+  searchPlaceholder: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1f2937',
+    fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: Dimensions.get('window').height * 0.75,
+    paddingBottom: 30,
+  },
+  modalFullScreen: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  tradeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  tradeInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  tradeCount: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  tradeItemSelected: {
+    backgroundColor: '#f9fafb',
+  },
+  tradeIconModal: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  tradeItemText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#1f2937',
+    fontWeight: '500',
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginVertical: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 12,
+  },
+  modalSearchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#1f2937',
+  },
+  tradespersonItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  tradespersonIconModal: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  tradespersonInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  tradespersonName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 2,
+  },
+  tradespersonTrade: {
+    fontSize: 13,
+    color: '#6b7280',
+  },
+  emptyState: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#9ca3af',
+    marginTop: 12,
   },
 });
