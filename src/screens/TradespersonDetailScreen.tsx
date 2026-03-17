@@ -17,7 +17,7 @@ import { TradeType } from '../types';
 type TradespersonDetailRouteProp = RouteProp<RootStackParamList, 'TradespersonDetail'>;
 
 const tradeColors: Record<TradeType, string> = {
-  electrician: '#f59e0b',
+  electrician: '#191918',
   plumber: '#3b82f6',
   carpenter: '#92400e',
   bricklayer: '#dc2626',

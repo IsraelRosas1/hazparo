@@ -37,7 +37,7 @@ export const mockTradespeople: Tradesperson[] = [
       {
         id: 'r1',
         userId: 'u1',
-        userName: 'Sarah Johnson',
+        userName: 'Sarah Peralta',
         rating: 5,
         comment: '¡Excelente trabajo! Muy profesional y puntual.',
         date: '2026-01-15',
@@ -45,7 +45,7 @@ export const mockTradespeople: Tradesperson[] = [
       {
         id: 'r2',
         userId: 'u2',
-        userName: 'Mike Davis',
+        userName: 'Mario Gomez',
         rating: 5,
         comment: 'Solucionó mis problemas eléctricos rápida y eficientemente.',
         date: '2026-01-10',
@@ -85,7 +85,7 @@ export const mockTradespeople: Tradesperson[] = [
       {
         id: 'r3',
         userId: 'u3',
-        userName: 'Emily Chen',
+        userName: 'Emilia Chavez',
         rating: 4,
         comment: 'Buen servicio, llegó a tiempo.',
         date: '2026-01-20',
@@ -125,7 +125,7 @@ export const mockTradespeople: Tradesperson[] = [
       {
         id: 'r4',
         userId: 'u4',
-        userName: 'Lisa Brown',
+        userName: 'Linda Sanchez',
         rating: 5,
         comment: '¡Artesanía increíble! Muy satisfecha con los gabinetes personalizados.',
         date: '2026-01-18',
@@ -133,7 +133,7 @@ export const mockTradespeople: Tradesperson[] = [
       {
         id: 'r5',
         userId: 'u5',
-        userName: 'Tom Wilson',
+        userName: 'Tomas Vega',
         rating: 5,
         comment: '¡Altamente recomendado! Profesional y hábil.',
         date: '2026-01-12',
@@ -213,7 +213,7 @@ export const mockTradespeople: Tradesperson[] = [
       {
         id: 'r7',
         userId: 'u7',
-        userName: 'Chris Lee',
+        userName: 'Cristian Lopez',
         rating: 5,
         comment: '¡Mejor mecánico del área! Arregló los problemas de mi auto perfectamente.',
         date: '2026-01-28',
