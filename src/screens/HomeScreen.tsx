@@ -53,11 +53,10 @@ export default function HomeScreen() {
   const [selectedTrade, setSelectedTrade] = useState<TradeType | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [userLocation, setUserLocation] = useState<realUserLocation| null> (null);
-  const [filteredTradespeople, setFilteredTradespeople] = useState<Tradesperson[]>(mockTradespeople);
-
-  useEffect(() => {
-    filterTradespeople();
-  }, [selectedTrade, searchQuery]);
+  // const [filteredTradespeople, setFilteredTradespeople] = useState<Tradesperson[]>(mockTradespeople);
+// 1. Keep a master list of localized people so they don't 'reset'
+  const [masterTradespeople, setMasterTradespeople] = useState<Tradesperson[]>([]);
+  const [filteredTradespeople, setFilteredTradespeople] = useState<Tradesperson[]>([]);
 
   const requestLocationPermission = async () => {
     try {
@@ -74,6 +73,7 @@ export default function HomeScreen() {
         }));
         setUserLocation(userCoords);
         setFilteredTradespeople(localizedData);
+        setMasterTradespeople(localizedData); // Save the localized list
       }
       // console.log("Location of user: ",userLocation?.latitude,userLocation?.longitude)
     } catch (error) {
@@ -84,7 +84,29 @@ export default function HomeScreen() {
     
     requestLocationPermission();
   }, []);
+// Run the filter whenever trade, search, OR the master list changes
+  useEffect(() => {
+    filterTradespeople();
+  }, [selectedTrade, searchQuery, masterTradespeople]);
+  const filterTradespeople = () => {
+      // Filter from the MASTER list (localized), not the mock import
+      let filtered = [...masterTradespeople];
 
+      if (selectedTrade) {
+        filtered = filtered.filter((tp) => tp.trade === selectedTrade);
+      }
+
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (tp) =>
+            tp.name.toLowerCase().includes(query) ||
+            tp.trade.toLowerCase().includes(query)
+        );
+      }
+
+      setFilteredTradespeople(filtered);
+    };
   useEffect(() => {
   if (userLocation) {
     console.log("State updated! User is now at:", userLocation.latitude, userLocation.longitude);
@@ -92,23 +114,23 @@ export default function HomeScreen() {
 
 
 }, [userLocation]); // This runs every time userLocation changes
-  const filterTradespeople = () => {
-    let filtered = mockTradespeople;
+  // const filterTradespeople = () => {
+  //   let filtered = mockTradespeople;
 
-    if (selectedTrade) {
-      filtered = filtered.filter((tp) => tp.trade === selectedTrade);
-    }
+  //   if (selectedTrade) {
+  //     filtered = filtered.filter((tp) => tp.trade === selectedTrade);
+  //   }
 
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (tp) =>
-          tp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          tp.trade.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+  //   if (searchQuery) {
+  //     filtered = filtered.filter(
+  //       (tp) =>
+  //         tp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //         tp.trade.toLowerCase().includes(searchQuery.toLowerCase())
+  //     );
+  //   }
 
-    setFilteredTradespeople(filtered);
-  };
+  //   setFilteredTradespeople(filtered);
+  // };
 
   const handleMarkerPress = (tradesperson: Tradesperson) => {
     navigation.navigate('TradespersonDetail', { tradespersonId: tradesperson.id });
