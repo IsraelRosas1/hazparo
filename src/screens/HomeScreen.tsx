@@ -15,7 +15,7 @@ import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { mockTradespeople, mockUserLocation } from '../data/mockData';
+import { mockTradespeople, getRandomLocation, type realUserLocation } from '../data/mockData';
 import { TradeType, Tradesperson } from '../types';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
@@ -52,10 +52,11 @@ export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [selectedTrade, setSelectedTrade] = useState<TradeType | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [userLocation, setUserLocation] = useState(mockUserLocation);
+  const [userLocation, setUserLocation] = useState<realUserLocation| null> (null);
   const [filteredTradespeople, setFilteredTradespeople] = useState<Tradesperson[]>(mockTradespeople);
 
   useEffect(() => {
+    
     requestLocationPermission();
   }, []);
 
@@ -68,16 +69,30 @@ export default function HomeScreen() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === 'granted') {
         const location = await Location.getCurrentPositionAsync({});
-        setUserLocation({
+        const userCoords = {
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
-        });
+        };
+        const localizedData = mockTradespeople.map(tp => ({
+          ...tp,
+          location: getRandomLocation(userCoords)
+        }));
+        setUserLocation(userCoords);
+        setFilteredTradespeople(localizedData);
       }
+      // console.log("Location of user: ",userLocation?.latitude,userLocation?.longitude)
     } catch (error) {
       Alert.alert('Error', 'Unable to get location');
     }
   };
 
+  useEffect(() => {
+  if (userLocation) {
+    console.log("State updated! User is now at:", userLocation.latitude, userLocation.longitude);
+  }
+
+
+}, [userLocation]); // This runs every time userLocation changes
   const filterTradespeople = () => {
     let filtered = mockTradespeople;
 
@@ -102,6 +117,13 @@ export default function HomeScreen() {
 
   const trades: TradeType[] = ['electrician', 'bricklayer', 'plumber', 'carpenter', 'mechanic'];
 
+  if (!userLocation) {
+  return (
+    <View style={styles.container}>
+      <Text>Obteniendo ubicación...</Text>
+    </View>
+  );
+}
   return (
     <View style={styles.container}>
       {/* Map */}

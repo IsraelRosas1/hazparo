@@ -1,21 +1,29 @@
 import { Tradesperson, Message, User } from '../types';
-
-// Mock user location (San Francisco)
-export const mockUserLocation = {
-  latitude: 37.7749,
-  longitude: -122.4194,
+// real location is 42.688169639587024 -83.2134556216277
+export type realUserLocation = {
+  latitude: number,
+  longitude: number,
+};
+export const INITIAL_LOCATION: realUserLocation = {
+  latitude: 42.688169639587024,
+  longitude: -83.2134556216277,
 };
 
-// Mock tradespeople data
+// Returns a coordinate within ~2 miles of the center
+export const getRandomLocation = (center: { latitude: number, longitude: number }) => {
+  const radius = 0.03; // roughly 2 miles
+  return {
+    latitude: center.latitude + (Math.random() * radius * 2 - radius),
+    longitude: center.longitude + (Math.random() * radius * 2 - radius),
+  };
+};
+// Mock tradespeople data near real user location
 export const mockTradespeople: Tradesperson[] = [
   {
     id: '1',
     name: 'Juan Martinez',
     trade: 'electrician',
-    location: {
-      latitude: 37.7849,
-      longitude: -122.4094,
-    },
+    location: getRandomLocation(INITIAL_LOCATION),
     hourlyRate: 85,
     bio: 'Electricista licenciado con 15 años de experiencia. Especializado en trabajos eléctricos residenciales y comerciales.',
     imageUrl: 'https://i.pravatar.cc/300?img=12',
@@ -312,6 +320,6 @@ export const mockUser: User = {
   email: 'mauricio@hotmail.com',
   phoneNumber: '(415) 555-0100',
   imageUrl: 'https://images.unsplash.com/photo-1566848597383-0f936eb50b94?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  location: mockUserLocation,
+  location: INITIAL_LOCATION,
   savedTradespeople: ['1', '3'],
 };
