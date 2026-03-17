@@ -141,21 +141,16 @@ export default function HomeScreen() {
     navigation.navigate('TradespersonDetail', { tradespersonId: tradesperson.id });
   };
 
-  const getFilteredTradespeopleForModal = () => {
-    let result = masterTradespeople;
-    
-    if (selectedModalTrade) {
-      result = result.filter(tp => tp.trade === selectedModalTrade);
+  const getFilteredTradesForModal = () => {
+    if (!searchModalQuery) {
+      return trades;
     }
     
-    if (searchModalQuery) {
-      const query = searchModalQuery.toLowerCase();
-      result = result.filter(tp => 
-        tp.name.toLowerCase().includes(query)
-      );
-    }
-
-    return result;
+    const query = searchModalQuery.toLowerCase();
+    return trades.filter(trade => 
+      tradeLabels[trade].toLowerCase().includes(query) ||
+      trade.toLowerCase().includes(query)
+    );
   };
 
   const trades: TradeType[] = ['electrician', 'bricklayer', 'plumber', 'carpenter', 'mechanic'];
@@ -266,7 +261,7 @@ export default function HomeScreen() {
       <Modal
         visible={isSearchModalVisible}
         animationType="slide"
-        transparent={false}
+        transparent={true}
         onRequestClose={() => {
           setIsSearchModalVisible(false);
           setSearchModalQuery('');
@@ -316,7 +311,7 @@ export default function HomeScreen() {
           {!selectedModalTrade ? (
             /* Trade Types List */
             <FlatList
-              data={trades}
+              data={getFilteredTradesForModal()}
               keyExtractor={(item) => item}
               renderItem={({ item: trade }) => {
                 const tradeCount = masterTradespeople.filter(tp => tp.trade === trade).length;
@@ -336,6 +331,12 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 );
               }}
+              ListEmptyComponent={
+                <View style={styles.emptyState}>
+                  <Ionicons name="search" size={48} color="#d1d5db" />
+                  <Text style={styles.emptyStateText}>No se encontraron profesiones</Text>
+                </View>
+              }
             />
           ) : (
             /* Tradespeople List for Selected Trade */
@@ -479,13 +480,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
+    paddingTop: 100, // This pushes the modal down by 100 pixels
+  },
+  modalContentContainer: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    height: '80%',
+    width: '100%',
+    overflow: 'hidden', 
   },
   modalContent: {
     backgroundColor: 'white',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: Dimensions.get('window').height * 0.75,
+    maxHeight: '80%',
     paddingBottom: 30,
+    paddingTop: 30,
   },
   modalFullScreen: {
     flex: 1,
@@ -496,7 +507,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 18,
+    paddingTop: 50,
+    paddingBottom: 30,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
