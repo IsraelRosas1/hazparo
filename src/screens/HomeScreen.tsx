@@ -56,11 +56,6 @@ export default function HomeScreen() {
   const [filteredTradespeople, setFilteredTradespeople] = useState<Tradesperson[]>(mockTradespeople);
 
   useEffect(() => {
-    
-    requestLocationPermission();
-  }, []);
-
-  useEffect(() => {
     filterTradespeople();
   }, [selectedTrade, searchQuery]);
 
@@ -85,6 +80,10 @@ export default function HomeScreen() {
       Alert.alert('Error', 'Unable to get location');
     }
   };
+  useEffect(() => {
+    
+    requestLocationPermission();
+  }, []);
 
   useEffect(() => {
   if (userLocation) {

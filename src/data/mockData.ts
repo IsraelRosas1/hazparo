@@ -10,7 +10,7 @@ export const INITIAL_LOCATION: realUserLocation = {
 };
 
 // Returns a coordinate within ~2 miles of the center
-export const getRandomLocation = (center: { latitude: number, longitude: number }) => {
+export const getRandomLocation = (center: realUserLocation) => {
   const radius = 0.03; // roughly 2 miles
   return {
     latitude: center.latitude + (Math.random() * radius * 2 - radius),
@@ -23,7 +23,7 @@ export const mockTradespeople: Tradesperson[] = [
     id: '1',
     name: 'Juan Martinez',
     trade: 'electrician',
-    location: getRandomLocation(INITIAL_LOCATION),
+    location: { latitude: 0, longitude: 0 },
     hourlyRate: 85,
     bio: 'Electricista licenciado con 15 años de experiencia. Especializado en trabajos eléctricos residenciales y comerciales.',
     imageUrl: 'https://i.pravatar.cc/300?img=12',
@@ -68,10 +68,7 @@ export const mockTradespeople: Tradesperson[] = [
     id: '2',
     name: 'David Martinez',
     trade: 'plumber',
-    location: {
-      latitude: 37.7649,
-      longitude: -122.4294,
-    },
+    location: { latitude: 0, longitude: 0 },
     hourlyRate: 75,
     bio: 'Plomero profesional especializado en reparaciones de emergencia e instalaciones.',
     imageUrl: 'https://i.pravatar.cc/300?img=33',
@@ -108,10 +105,7 @@ export const mockTradespeople: Tradesperson[] = [
     id: '3',
     name: 'Roberto Garcia',
     trade: 'carpenter',
-    location: {
-      latitude: 37.7749,
-      longitude: -122.4394,
-    },
+    location: { latitude: 0, longitude: 0 },
     hourlyRate: 70,
     bio: 'Carpintero experimentado especializado en trabajos de madera personalizados y renovaciones de hogar.',
     imageUrl: 'https://i.pravatar.cc/300?img=51',
@@ -156,10 +150,7 @@ export const mockTradespeople: Tradesperson[] = [
     id: '4',
     name: 'Miguel Hernandez',
     trade: 'bricklayer',
-    location: {
-      latitude: 37.7949,
-      longitude: -122.4194,
-    },
+    location: { latitude: 0, longitude: 0 },
     hourlyRate: 80,
     bio: 'Albañil y mampostero experto con experiencia en proyectos residenciales y comerciales.',
     imageUrl: 'https://i.pravatar.cc/300?img=68',
@@ -196,10 +187,7 @@ export const mockTradespeople: Tradesperson[] = [
     id: '5',
     name: 'Jaime Ramirez',
     trade: 'mechanic',
-    location: {
-      latitude: 37.7649,
-      longitude: -122.4094,
-    },
+    location:{ latitude: 0, longitude: 0 },
     hourlyRate: 90,
     bio: 'Mecánico certificado ASE especializado en reparación y mantenimiento automotriz.',
     imageUrl: 'https://i.pravatar.cc/300?img=15',
@@ -244,10 +232,7 @@ export const mockTradespeople: Tradesperson[] = [
     id: '6',
     name: 'Carlos Rodriguez',
     trade: 'electrician',
-    location: {
-      latitude: 37.7549,
-      longitude: -122.4394,
-    },
+    location: { latitude: 0, longitude: 0 },
     hourlyRate: 80,
     bio: 'Electricista residencial y comercial con enfoque en soluciones de eficiencia energética.',
     imageUrl: 'https://i.pravatar.cc/300?img=59',
@@ -320,6 +305,6 @@ export const mockUser: User = {
   email: 'mauricio@hotmail.com',
   phoneNumber: '(415) 555-0100',
   imageUrl: 'https://images.unsplash.com/photo-1566848597383-0f936eb50b94?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  location: INITIAL_LOCATION,
+  location: { latitude: 0, longitude: 0 },
   savedTradespeople: ['1', '3'],
 };
