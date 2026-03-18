@@ -11,7 +11,7 @@ import {
   Modal,
   FlatList,
 } from 'react-native';
-import MapView, { Marker, Circle } from 'react-native-maps';
+import { Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
@@ -32,6 +32,9 @@ const tradeIcons: Record<TradeType, keyof typeof Ionicons.glyphMap> = {
   carpenter: 'hammer',
   bricklayer: 'home',
   mechanic: 'car',
+  limpieza: 'broom',
+  jardineria: 'leaf',
+  pintura: 'color-palette',
 };
 
 const tradeColors: Record<TradeType, string> = {
@@ -40,6 +43,9 @@ const tradeColors: Record<TradeType, string> = {
   carpenter: '#92400e',
   bricklayer: '#dc2626',
   mechanic: '#1f2937',
+  limpieza: '#10b981',
+  jardineria: '#059669',
+  pintura: '#ef4444',
 };
 
 const tradeLabels: Record<TradeType, string> = {
@@ -48,6 +54,9 @@ const tradeLabels: Record<TradeType, string> = {
   carpenter: 'Carpintero',
   bricklayer: 'Albañil',
   mechanic: 'Mecánico',
+  limpieza: 'Limpieza',
+  jardineria: 'Jardinería',
+  pintura: 'Pintura',
 };
 
 export default function HomeScreen() {
@@ -112,13 +121,13 @@ export default function HomeScreen() {
 
       setFilteredTradespeople(filtered);
     };
-  useEffect(() => {
-  if (userLocation) {
-    console.log("State updated! User is now at:", userLocation.latitude, userLocation.longitude);
-  }
+//   useEffect(() => {
+//   if (userLocation) {
+//     console.log("State updated! User is now at:", userLocation.latitude, userLocation.longitude);
+//   }
 
 
-}, [userLocation]); // This runs every time userLocation changes
+// }, [userLocation]); // This runs every time userLocation changes
 
 
   const handleMarkerPress = (tradesperson: Tradesperson) => {
@@ -152,50 +161,63 @@ export default function HomeScreen() {
     return filtered;
   };
 
-  const trades: TradeType[] = ['electrician', 'bricklayer', 'plumber', 'carpenter', 'mechanic'];
+  const trades: TradeType[] = ['electrician', 'bricklayer', 'plumber', 'carpenter', 'mechanic', 'limpieza', 'jardineria', 'pintura'];
 
   if (!userLocation) {
-  return (
-    <View style={styles.container}>
-      <Text>Obteniendo ubicación...</Text>
-    </View>
-  );
-}
-  return (
-    <View style={styles.container}>
-      {/* Map */}
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: userLocation.latitude,
-          longitude: userLocation.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-        showsUserLocation
-        showsMyLocationButton
-      >
-        {/* Radius circle */}
-        <Circle
-          center={userLocation}
-          radius={RADIUS_MILES * MILES_TO_METERS}
-          strokeColor="rgba(37, 99, 235, 0.3)"
-          fillColor="rgba(37, 99, 235, 0.1)"
-        />
+    return (
+      <View style={styles.container}>
+        <Text>Obteniendo ubicación...</Text>
+      </View>
+    );
+  }
 
-        {/* Tradesperson markers */}
-        {filteredTradespeople.map((tradesperson) => (
-          <Marker
-            key={tradesperson.id}
-            coordinate={tradesperson.location}
-            onPress={() => handleMarkerPress(tradesperson)}
-          >
-            <View style={[styles.marker, { backgroundColor: tradeColors[tradesperson.trade] }]}>
-              <Ionicons name={tradeIcons[tradesperson.trade]} size={20} color="white" />
-            </View>
-          </Marker>
-        ))}
-      </MapView>
+  return (
+    <View style={styles.container}>
+      {/* Inicio content sections (replaces map) */}
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 120, paddingTop: 180 }}>
+        <View style={{ padding: 20 }}>
+          <Text style={{ fontSize: 22, fontWeight: '700', marginBottom: 8 }}>Popular en Hazparo</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {trades.slice(0, 6).map((t) => (
+              <TouchableOpacity key={t} style={{ width: 140, height: 120, backgroundColor: '#fff', marginRight: 12, borderRadius: 12, padding: 12, justifyContent: 'space-between', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 }} onPress={() => { setIsSearchModalVisible(true); setSelectedModalTrade(t); }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: tradeColors[t], justifyContent: 'center', alignItems: 'center' }}>
+                    <Ionicons name={tradeIcons[t]} size={20} color="#fff" />
+                  </View>
+                  <Text style={{ marginLeft: 8, fontWeight: '600' }}>{tradeLabels[t]}</Text>
+                </View>
+                <Text style={{ color: '#6b7280' }}>Profesionales disponibles</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <View style={{ height: 20 }} />
+
+          <Text style={{ fontSize: 20, fontWeight: '700', marginBottom: 8 }}>Recomendados cerca</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {filteredTradespeople.slice(0, 8).map(tp => (
+              <TouchableOpacity key={tp.id} style={{ width: 180, marginRight: 12, backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }} onPress={() => handleMarkerPress(tp)}>
+                <Image source={{ uri: tp.imageUrl }} style={{ width: '100%', height: 90, borderRadius: 8 }} />
+                <Text style={{ marginTop: 8, fontWeight: '700' }}>{tp.name}</Text>
+                <Text style={{ color: '#6b7280' }}>⭐ {tp.rating.toFixed(1)} • ${tp.hourlyRate}/hr</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <View style={{ height: 20 }} />
+
+          <Text style={{ fontSize: 20, fontWeight: '700', marginBottom: 8 }}>Nuevos en tu área</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {filteredTradespeople.slice(2, 10).map(tp => (
+              <TouchableOpacity key={tp.id} style={{ width: 160, marginRight: 12, backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }} onPress={() => handleMarkerPress(tp)}>
+                <Image source={{ uri: tp.imageUrl }} style={{ width: '100%', height: 80, borderRadius: 8 }} />
+                <Text style={{ marginTop: 8, fontWeight: '700' }}>{tp.name}</Text>
+                <Text style={{ color: '#6b7280' }}>{tradeLabels[tp.trade]}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </ScrollView>
 
       {/* Search bar */}
       <TouchableOpacity 
@@ -204,7 +226,7 @@ export default function HomeScreen() {
       >
         <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
         <Text style={styles.searchPlaceholder}>
-          {selectedTrade ? tradeLabels[selectedTrade] : 'Seleccionar oficio'}
+          {selectedTrade ? tradeLabels[selectedTrade] : 'Con que necesita ayuda?'}
         </Text>
         <Ionicons name="chevron-down" size={20} color="#6b7280" />
       </TouchableOpacity>
@@ -352,14 +374,15 @@ export default function HomeScreen() {
                     setSelectedModalTrade(null);
                   }}
                 >
-                  <View style={[styles.tradespersonIconModal, { backgroundColor: tradeColors[tradesperson.trade] }]}>
-                    <Ionicons name={tradeIcons[tradesperson.trade]} size={24} color="white" />
-                  </View>
+                  <Image source={{ uri: tradesperson.imageUrl }} style={{ width: 56, height: 56, borderRadius: 28, marginRight: 12 }} />
                   <View style={styles.tradespersonInfo}>
                     <Text style={styles.tradespersonName}>{tradesperson.name}</Text>
-                    <Text style={styles.tradespersonTrade}>${tradesperson.hourlyRate}/hr</Text>
+                    <Text style={styles.tradespersonTrade}>{tradeLabels[tradesperson.trade]} • ⭐ {tradesperson.rating.toFixed(1)}</Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={{ color: '#6b7280' }}>${tradesperson.hourlyRate}/hr</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                  </View>
                 </TouchableOpacity>
               )}
               ListEmptyComponent={

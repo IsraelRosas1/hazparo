@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
+import BuscarScreen from '../screens/BuscarScreen';
 import MessagesScreen from '../screens/MessagesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import TradespersonDetailScreen from '../screens/TradespersonDetailScreen';
@@ -18,6 +19,7 @@ export type RootStackParamList = {
 
 export type BottomTabParamList = {
   Home: undefined;
+  Buscar: undefined;
   Messages: undefined;
   Profile: undefined;
 };
@@ -50,6 +52,7 @@ function BottomTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
+      <Tab.Screen name="Buscar" component={BuscarScreen} options={{ title: 'Buscar' }} />
       <Tab.Screen name="Messages" component={MessagesScreen} options={{ title: 'Mensajes' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
     </Tab.Navigator>

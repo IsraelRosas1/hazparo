@@ -1,4 +1,12 @@
-export type TradeType = 'electrician' | 'bricklayer' | 'plumber' | 'carpenter' | 'mechanic';
+export type TradeType =
+  | 'electrician'
+  | 'bricklayer'
+  | 'plumber'
+  | 'carpenter'
+  | 'mechanic'
+  | 'limpieza'
+  | 'jardineria'
+  | 'pintura';
 
 export interface Location {
   latitude: number;
