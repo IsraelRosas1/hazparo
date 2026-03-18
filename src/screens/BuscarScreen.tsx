@@ -180,8 +180,8 @@ export default function BuscarScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: '#1f2937' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 50, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: '#e5e7eb', backgroundColor: '#fff' },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: '#0b3d91' },
   searchInputContainer: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 20, marginVertical: 14, paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f3f4f6', borderRadius: 12 },
   modalSearchInput: { flex: 1, marginLeft: 8, fontSize: 16, color: '#1f2937' },
   tradeItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },

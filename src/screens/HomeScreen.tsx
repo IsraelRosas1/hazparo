@@ -231,45 +231,7 @@ export default function HomeScreen() {
         <Ionicons name="chevron-down" size={20} color="#6b7280" />
       </TouchableOpacity>
 
-      {/* Trade type filters */}
-      <View style={styles.filterContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <TouchableOpacity
-            style={[styles.filterButton, selectedTrade === null && styles.filterButtonActive]}
-            onPress={() => setSelectedTrade(null)}
-          >
-            <Text style={[styles.filterText, selectedTrade === null && styles.filterTextActive]}>
-              Todos
-            </Text>
-          </TouchableOpacity>
-          {trades.map((trade) => (
-            <TouchableOpacity
-              key={trade}
-              style={[
-                styles.filterButton,
-                selectedTrade === trade && styles.filterButtonActive,
-                { borderColor: tradeColors[trade] },
-              ]}
-              onPress={() => setSelectedTrade(trade)}
-            >
-              <Ionicons
-                name={tradeIcons[trade]}
-                size={18}
-                color={selectedTrade === trade ? tradeColors[trade] : '#6b7280'}
-                style={styles.filterIcon}
-              />
-              <Text
-                style={[
-                  styles.filterText,
-                  selectedTrade === trade && { color: tradeColors[trade] },
-                ]}
-              >
-                {tradeLabels[trade]}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+      {/* Trades filter removed to prevent sticky overlap; search bar retained */}
 
       {/* Results count */}
       <View style={styles.resultsContainer}>
@@ -482,7 +444,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 30,
     alignSelf: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: '#0b3d91',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -495,7 +457,7 @@ const styles = StyleSheet.create({
   searchPlaceholder: {
     flex: 1,
     fontSize: 16,
-    color: '#1f2937',
+    color: '#0b3d91',
     fontWeight: '500',
   },
   modalOverlay: {
@@ -537,7 +499,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#0b3d91',
   },
   tradeItem: {
     flexDirection: 'row',

@@ -46,7 +46,7 @@ function BottomTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2563eb',
+        tabBarActiveTintColor: '#0b3d91',
         tabBarInactiveTintColor: 'gray',
         headerShown: false,
       })}
