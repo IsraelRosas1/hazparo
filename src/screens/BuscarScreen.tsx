@@ -43,6 +43,14 @@ const tradeLabels: Record<TradeType, string> = {
   pintura: 'Pintura',
 };
 
+const tradeLogos: Partial<Record<TradeType, any>> = {
+  electrician: require('../../assets/electricista.jpg'),
+  plumber: require('../../assets/plomeria.jpg'),
+  carpenter: require('../../assets/carpinteria.jpg'),
+  bricklayer: require('../../assets/albanil.jpg'),
+  mechanic: require('../../assets/mecanico.jpg'),
+};
+
 export default function BuscarScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [userLocation, setUserLocation] = useState(INITIAL_LOCATION);
@@ -128,9 +136,13 @@ export default function BuscarScreen() {
             const tradeCount = masterTradespeople.filter(tp => tp.trade === trade).length;
             return (
               <TouchableOpacity style={styles.tradeItem} onPress={() => setSelectedModalTrade(trade)}>
-                <View style={[styles.tradeIconModal, { backgroundColor: tradeColors[trade] }]}>
-                  <Ionicons name={tradeIcons[trade]} size={24} color="white" />
-                </View>
+                {tradeLogos[trade] ? (
+                  <Image source={tradeLogos[trade]} style={{ width: 44, height: 44, borderRadius: 8, marginRight: 14 }} resizeMode="cover" />
+                ) : (
+                  <View style={[styles.tradeIconModal, { backgroundColor: tradeColors[trade] }]}> 
+                    <Ionicons name={tradeIcons[trade]} size={24} color="white" />
+                  </View>
+                )}
                 <View style={styles.tradeInfo}>
                   <Text style={styles.tradeItemText}>{tradeLabels[trade]}</Text>
                   <Text style={styles.tradeCount}>{tradeCount} {tradeCount === 1 ? 'profesional' : 'profesionales'}</Text>

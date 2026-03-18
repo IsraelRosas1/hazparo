@@ -59,6 +59,14 @@ const tradeLabels: Record<TradeType, string> = {
   pintura: 'Pintura',
 };
 
+const tradeLogos: Partial<Record<TradeType, any>> = {
+  electrician: require('../../assets/electricista.jpg'),
+  plumber: require('../../assets/plomeria.jpg'),
+  carpenter: require('../../assets/carpinteria.jpg'),
+  bricklayer: require('../../assets/albanil.jpg'),
+  mechanic: require('../../assets/mecanico.jpg'),
+};
+
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [selectedTrade, setSelectedTrade] = useState<TradeType | null>(null);
@@ -181,9 +189,13 @@ export default function HomeScreen() {
             {trades.slice(0, 6).map((t) => (
               <TouchableOpacity key={t} style={{ width: 140, height: 120, backgroundColor: '#fff', marginRight: 12, borderRadius: 12, padding: 12, justifyContent: 'space-between', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 }} onPress={() => { setIsSearchModalVisible(true); setSelectedModalTrade(t); }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: tradeColors[t], justifyContent: 'center', alignItems: 'center' }}>
-                    <Ionicons name={tradeIcons[t]} size={20} color="#fff" />
-                  </View>
+                  {tradeLogos[t] ? (
+                    <Image source={tradeLogos[t]} style={{ width: 40, height: 40, borderRadius: 8 }} resizeMode="cover" />
+                  ) : (
+                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: tradeColors[t], justifyContent: 'center', alignItems: 'center' }}>
+                      <Ionicons name={tradeIcons[t]} size={20} color="#fff" />
+                    </View>
+                  )}
                   <Text style={{ marginLeft: 8, fontWeight: '600' }}>{tradeLabels[t]}</Text>
                 </View>
                 <Text style={{ color: '#6b7280' }}>Profesionales disponibles</Text>
