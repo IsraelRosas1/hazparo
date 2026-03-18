@@ -119,23 +119,7 @@ export default function HomeScreen() {
 
 
 }, [userLocation]); // This runs every time userLocation changes
-  // const filterTradespeople = () => {
-  //   let filtered = mockTradespeople;
 
-  //   if (selectedTrade) {
-  //     filtered = filtered.filter((tp) => tp.trade === selectedTrade);
-  //   }
-
-  //   if (searchQuery) {
-  //     filtered = filtered.filter(
-  //       (tp) =>
-  //         tp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //         tp.trade.toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //   }
-
-  //   setFilteredTradespeople(filtered);
-  // };
 
   const handleMarkerPress = (tradesperson: Tradesperson) => {
     navigation.navigate('TradespersonDetail', { tradespersonId: tradesperson.id });
@@ -151,6 +135,21 @@ export default function HomeScreen() {
       tradeLabels[trade].toLowerCase().includes(query) ||
       trade.toLowerCase().includes(query)
     );
+  };
+
+  const getFilteredTradespeopleForModal = () => {
+    if (!selectedModalTrade) return [];
+    
+    let filtered = masterTradespeople.filter(tp => tp.trade === selectedModalTrade);
+    
+    if (searchModalQuery) {
+      const query = searchModalQuery.toLowerCase();
+      filtered = filtered.filter(tp =>
+        tp.name.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
   };
 
   const trades: TradeType[] = ['electrician', 'bricklayer', 'plumber', 'carpenter', 'mechanic'];
@@ -205,7 +204,7 @@ export default function HomeScreen() {
       >
         <Ionicons name="search" size={20} color="#6b7280" style={styles.searchIcon} />
         <Text style={styles.searchPlaceholder}>
-          {selectedTrade ? tradeLabels[selectedTrade] : 'Seleccionar profesión...'}
+          {selectedTrade ? tradeLabels[selectedTrade] : 'Seleccionar oficio'}
         </Text>
         <Ionicons name="chevron-down" size={20} color="#6b7280" />
       </TouchableOpacity>
@@ -295,7 +294,7 @@ export default function HomeScreen() {
             <Ionicons name="search" size={20} color="#6b7280" />
             <TextInput
               style={styles.modalSearchInput}
-              placeholder={selectedModalTrade ? "Buscar en esta profesión..." : "Buscar profesional..."}
+              placeholder={selectedModalTrade ? "Buscar en esta profesión..." : "Buscar oficio..."}
               placeholderTextColor="#9ca3af"
               value={searchModalQuery}
               onChangeText={setSearchModalQuery}
