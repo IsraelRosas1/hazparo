@@ -182,10 +182,10 @@ export default function BuscarScreen() {
 
       {/* Address input below search */}
       <View style={{ paddingHorizontal: 20, paddingBottom: 8 }}>
-        <Text style={{ color: '#6b7280', marginBottom: 6 }}>Dirección</Text>
+        <Text style={{ color: '#466298', marginBottom: 6 }}>Dirección</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TextInput
-            style={[styles.modalSearchInput, { flex: 1, backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 10 }]}
+            style={[styles.modalSearchInput, { flex: 1, backgroundColor: '#f0eded', borderRadius: 8, paddingHorizontal: 10 }]}
             placeholder="Introduce o cambia tu dirección"
             value={address}
             onChangeText={setAddress}
