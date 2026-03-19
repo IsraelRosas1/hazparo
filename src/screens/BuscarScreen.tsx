@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator, TextInput } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator, TextInput, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
@@ -58,8 +58,60 @@ export default function BuscarScreen() {
   const [loading, setLoading] = useState(true);
   const [searchModalQuery, setSearchModalQuery] = useState('');
   const [selectedModalTrade, setSelectedModalTrade] = useState<TradeType | null>(null);
+  const [address, setAddress] = useState('');
+  const [questionnaireVisible, setQuestionnaireVisible] = useState(false);
+  const [questionTradesperson, setQuestionTradesperson] = useState<Tradesperson | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [openDetails, setOpenDetails] = useState('');
 
   const trades: TradeType[] = ['electrician', 'bricklayer', 'plumber', 'carpenter', 'mechanic', 'limpieza', 'jardineria', 'pintura'];
+
+  const tradeQuestionnaires: Record<TradeType, { id: string; text: string; options?: string[] }[]> = {
+    electrician: [
+      { id: 'urgency', text: '¿Qué tan urgente es el trabajo?', options: ['Inmediato', 'Esta semana', 'Flexible'] },
+      { id: 'serviceType', text: 'Tipo de servicio', options: ['Instalación', 'Reparación', 'Mantenimiento'] },
+    ],
+    plumber: [
+      { id: 'urgency', text: '¿Qué tan urgente es el trabajo?', options: ['Inmediato', 'Esta semana', 'Flexible'] },
+      { id: 'problem', text: '¿Qué problema principal?' , options: ['Fuga', 'Atasco', 'Instalación']},
+    ],
+    carpenter: [
+      { id: 'project', text: '¿Qué proyecto necesita?', options: ['Muebles', 'Reparación', 'Instalación'] },
+      { id: 'size', text: 'Tamaño del trabajo', options: ['Pequeño', 'Mediano', 'Grande'] },
+    ],
+    bricklayer: [
+      { id: 'type', text: 'Tipo de obra', options: ['Muro', 'Reparación', 'Pavimento'] },
+      { id: 'scale', text: 'Escala del proyecto', options: ['Pequeña', 'Mediana', 'Grande'] },
+    ],
+    mechanic: [
+      { id: 'vehicle', text: 'Tipo de vehículo', options: ['Auto', 'Camioneta', 'Moto'] },
+      { id: 'issue', text: 'Problema principal', options: ['Frenos', 'Motor', 'Otros'] },
+    ],
+    limpieza: [
+      { id: 'space', text: 'Tipo de espacio', options: ['Casa', 'Departamento', 'Oficina'] },
+      { id: 'frequency', text: 'Frecuencia deseada', options: ['Una vez', 'Semanal', 'Mensual'] },
+    ],
+    jardineria: [
+      { id: 'service', text: 'Servicio requerido', options: ['Poda', 'Diseño', 'Mantenimiento'] },
+      { id: 'area', text: 'Tamaño del área', options: ['Pequeña', 'Mediana', 'Grande'] },
+    ],
+    pintura: [
+      { id: 'area', text: 'Área a pintar', options: ['Interior', 'Exterior', 'Ambos'] },
+      { id: 'surface', text: 'Superficie', options: ['Paredes', 'Techo', 'Madera'] },
+    ],
+  };
+
+  const personQuestionnaires: Record<string, { id: string; text: string; options?: string[] }[]> = useMemo(() => {
+    const map: Record<string, { id: string; text: string; options?: string[] }[]> = {};
+    mockTradespeople.forEach(tp => {
+      const base = tradeQuestionnaires[tp.trade] || [];
+      map[tp.id] = [
+        ...base,
+        { id: `custom_${tp.id}`, text: `¿Alguna instrucción o preferencia para ${tp.name}?` },
+      ];
+    });
+    return map;
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -128,6 +180,85 @@ export default function BuscarScreen() {
         ) : null}
       </View>
 
+      {/* Address input below search */}
+      <View style={{ paddingHorizontal: 20, paddingBottom: 8 }}>
+        <Text style={{ color: '#6b7280', marginBottom: 6 }}>Dirección</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TextInput
+            style={[styles.modalSearchInput, { flex: 1, backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 10 }]}
+            placeholder="Introduce o cambia tu dirección"
+            value={address}
+            onChangeText={setAddress}
+          />
+          <TouchableOpacity style={{ marginLeft: 8 }} onPress={() => {
+            if (userLocation) {
+              setAddress(`Lat: ${userLocation.latitude.toFixed(4)}, Lon: ${userLocation.longitude.toFixed(4)}`);
+            } else {
+              Alert.alert('Ubicación', 'No se pudo obtener la ubicación.');
+            }
+          }}>
+            <Ionicons name="locate" size={24} color="#0b3d91" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Questionnaire modal */}
+      <Modal visible={questionnaireVisible} animationType="slide" transparent={true} onRequestClose={() => setQuestionnaireVisible(false)}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+          <View style={{ width: '94%', backgroundColor: 'white', borderRadius: 12, padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: '#0b3d91' }}>Solicitud - {questionTradesperson ? questionTradesperson.name : ''}</Text>
+              <TouchableOpacity onPress={() => {
+                Alert.alert(
+                  'Cancelar solicitud',
+                  '¿Deseas cancelar la solicitud o volver a editarla?',
+                  [
+                    { text: 'Cancelar solicitud', style: 'destructive', onPress: () => { setQuestionnaireVisible(false); setAnswers({}); setOpenDetails(''); setQuestionTradesperson(null); } },
+                    { text: 'Volver', style: 'cancel' },
+                  ]
+                );
+              }}>
+                <Ionicons name="close" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ marginTop: 12 }}>
+              {(questionTradesperson ? (personQuestionnaires[questionTradesperson.id] ?? tradeQuestionnaires[questionTradesperson.trade]) : []).map(q => (
+                <View key={q.id} style={{ marginBottom: 12 }}>
+                  <Text style={{ fontWeight: '600' }}>{q.text}</Text>
+                  <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                    {q.options?.map(opt => (
+                      <TouchableOpacity key={opt} onPress={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))} style={{ padding: 8, marginRight: 8, borderRadius: 8, backgroundColor: answers[q.id] === opt ? '#0b3d91' : '#f3f4f6' }}>
+                        <Text style={{ color: answers[q.id] === opt ? '#fff' : '#1f2937' }}>{opt}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              ))}
+
+              <Text style={{ fontWeight: '600' }}>Detalles (opcional)</Text>
+              <TextInput value={openDetails} onChangeText={setOpenDetails} placeholder="Añade más información" multiline style={{ minHeight: 80, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, padding: 8, marginTop: 8 }} />
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
+              <TouchableOpacity onPress={() => { setQuestionnaireVisible(false); setAnswers({}); setOpenDetails(''); setQuestionTradesperson(null); }} style={{ paddingHorizontal: 12, paddingVertical: 8, marginRight: 8 }}>
+                <Text style={{ color: '#6b7280' }}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                // submit (mock) and navigate to profile
+                setQuestionnaireVisible(false);
+                Alert.alert('Solicitud enviada', 'Tu solicitud fue enviada al profesional.');
+                const id = questionTradesperson?.id;
+                setAnswers({}); setOpenDetails(''); setQuestionTradesperson(null);
+                if (id) navigation.navigate('TradespersonDetail', { tradespersonId: id });
+              }} style={{ backgroundColor: '#0b3d91', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}>
+                <Text style={{ color: 'white', fontWeight: '700' }}>Enviar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {!selectedModalTrade ? (
         <FlatList
           data={getFilteredTradesForModal()}
@@ -163,20 +294,21 @@ export default function BuscarScreen() {
           data={getFilteredTradespeopleForModal()}
           keyExtractor={(item) => item.id}
           renderItem={({ item: tradesperson }) => (
-            <TouchableOpacity
-              style={styles.tradespersonItem}
-              onPress={() => navigation.navigate('TradespersonDetail', { tradespersonId: tradesperson.id })}
-            >
-              <Image source={{ uri: tradesperson.imageUrl }} style={{ width: 56, height: 56, borderRadius: 28, marginRight: 12 }} />
-              <View style={styles.tradespersonInfo}>
-                <Text style={styles.tradespersonName}>{tradesperson.name}</Text>
-                <Text style={styles.tradespersonTrade}>{tradeLabels[tradesperson.trade]} • ⭐ {tradesperson.rating.toFixed(1)}</Text>
-              </View>
+            <View style={styles.tradespersonItem}>
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }} onPress={() => navigation.navigate('TradespersonDetail', { tradespersonId: tradesperson.id })}>
+                <Image source={{ uri: tradesperson.imageUrl }} style={{ width: 56, height: 56, borderRadius: 28, marginRight: 12 }} />
+                <View style={styles.tradespersonInfo}>
+                  <Text style={styles.tradespersonName}>{tradesperson.name}</Text>
+                  <Text style={styles.tradespersonTrade}>{tradeLabels[tradesperson.trade]} • ⭐ {tradesperson.rating.toFixed(1)}</Text>
+                </View>
+              </TouchableOpacity>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={{ color: '#6b7280' }}>${tradesperson.hourlyRate}/hr</Text>
-                <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                <TouchableOpacity onPress={() => { setQuestionTradesperson(tradesperson); setQuestionnaireVisible(true); }} style={{ marginTop: 8, backgroundColor: '#0b3d91', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }}>
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>Solicitar Presupuesto</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+            </View>
           )}
           ListEmptyComponent={
             <View style={styles.emptyState}>
