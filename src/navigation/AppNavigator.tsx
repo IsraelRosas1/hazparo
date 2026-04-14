@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Image } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // Screens
@@ -11,8 +11,15 @@ import BuscarScreen from '../screens/BuscarScreen';
 import MessagesScreen from '../screens/MessagesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import TradespersonDetailScreen from '../screens/TradespersonDetailScreen';
+import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
+import { useAuth } from '../context/AuthContext';
 
 export type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  Onboarding: undefined;
   MainTabs: undefined;
   TradespersonDetail: { tradespersonId: string };
 };
@@ -60,15 +67,50 @@ function BottomTabs() {
 }
 
 export default function AppNavigator() {
+  const { session, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#ffffff',
+        }}
+      >
+        <ActivityIndicator size="large" color="#0b3d91" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="MainTabs" component={BottomTabs} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="TradespersonDetail"
-          component={TradespersonDetailScreen}
-          options={{ title: 'Detalles del Profesional' }}
-        />
+        {session ? (
+          <>
+            <Stack.Screen name="MainTabs" component={BottomTabs} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="TradespersonDetail"
+              component={TradespersonDetailScreen}
+              options={{ title: 'Detalles del Profesional' }}
+            />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{ title: 'Crear Cuenta' }}
+            />
+            <Stack.Screen
+              name="Onboarding"
+              component={OnboardingScreen}
+              options={{ title: 'Onboarding' }}
+            />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

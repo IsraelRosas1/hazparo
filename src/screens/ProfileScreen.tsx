@@ -2,8 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { mockUser } from '../data/mockData';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
+  const { signOut } = useAuth();
+
   const handleEditProfile = () => {
     Alert.alert('Editar Perfil', '¡Edición de perfil próximamente!');
   };
@@ -31,7 +34,18 @@ export default function ProfileScreen() {
   const handleLogout = () => {
     Alert.alert('Cerrar Sesión', '¿Estás seguro de que quieres cerrar sesión?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Cerrar Sesión', style: 'destructive', onPress: () => Alert.alert('Sesión cerrada') },
+      {
+        text: 'Cerrar Sesión',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await signOut();
+          } catch (error) {
+            const message = error instanceof Error ? error.message : 'No se pudo cerrar sesión.';
+            Alert.alert('Error', message);
+          }
+        },
+      },
     ]);
   };
 

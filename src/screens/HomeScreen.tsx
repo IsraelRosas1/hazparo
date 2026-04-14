@@ -36,7 +36,7 @@ const tradeIcons: Record<TradeType, keyof typeof Ionicons.glyphMap> = {
   carpenter: 'hammer',
   bricklayer: 'home',
   mechanic: 'car',
-  limpieza: 'broom',
+  limpieza: 'sparkles',
   jardineria: 'leaf',
   pintura: 'color-palette',
 };
@@ -827,6 +827,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#0b3d91',
+  },
+  backButton: {
+    width: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tradeItem: {
     flexDirection: 'row',

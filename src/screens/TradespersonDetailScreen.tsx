@@ -14,6 +14,9 @@ const tradeColors: Record<TradeType, string> = {
   carpenter: '#92400e',
   bricklayer: '#dc2626',
   mechanic: '#1f2937',
+  limpieza: '#10b981',
+  jardineria: '#059669',
+  pintura: '#ef4444',
 };
 
 const tradeLabels: Record<TradeType, string> = {
@@ -22,6 +25,9 @@ const tradeLabels: Record<TradeType, string> = {
   carpenter: 'Carpintero',
   bricklayer: 'Albañil',
   mechanic: 'Mecánico',
+  limpieza: 'Limpieza',
+  jardineria: 'Jardinería',
+  pintura: 'Pintura',
 };
 
 export default function TradespersonDetailScreen() {

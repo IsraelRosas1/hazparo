@@ -27,7 +27,7 @@ const tradeIcons: Record<TradeType, keyof typeof Ionicons.glyphMap> = {
   carpenter: 'hammer',
   bricklayer: 'home',
   mechanic: 'car',
-  limpieza: 'broom',
+  limpieza: 'sparkles',
   jardineria: 'leaf',
   pintura: 'color-palette',
 };
