@@ -1,11 +1,58 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { mockUser } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
-  const { signOut } = useAuth();
+  const {
+    session,
+    profile,
+    tradespersonProfile,
+    isTradespersonProfileComplete,
+    updateTradespersonProfile,
+    signOut,
+  } = useAuth();
+  const [bioInput, setBioInput] = useState('');
+  const [hourlyRateInput, setHourlyRateInput] = useState('');
+  const [yearsExperienceInput, setYearsExperienceInput] = useState('0');
+  const [isSavingProfessionalInfo, setIsSavingProfessionalInfo] = useState(false);
+
+  useEffect(() => {
+    setBioInput(tradespersonProfile?.bio ?? '');
+    setHourlyRateInput(
+      tradespersonProfile?.hourly_rate !== null && tradespersonProfile?.hourly_rate !== undefined
+        ? String(tradespersonProfile.hourly_rate)
+        : '',
+    );
+    setYearsExperienceInput(String(tradespersonProfile?.years_experience ?? 0));
+  }, [tradespersonProfile]);
+
+  const roleLabel = useMemo(() => {
+    if (profile?.role === 'tradesperson') {
+      return 'Profesional';
+    }
+    if (profile?.role === 'client') {
+      return 'Cliente';
+    }
+    return 'Cuenta';
+  }, [profile?.role]);
+
+  const displayName =
+    profile?.full_name || session?.user.user_metadata?.full_name || session?.user.email || 'Usuario';
+  const displayEmail = profile?.email || session?.user.email || 'Sin correo';
+  const avatarUrl =
+    session?.user.user_metadata?.avatar_url || 'https://i.pravatar.cc/300?img=33';
+  const savedCount = 0;
 
   const handleEditProfile = () => {
     Alert.alert('Editar Perfil', '¡Edición de perfil próximamente!');
@@ -24,7 +71,7 @@ export default function ProfileScreen() {
   };
 
   const handleSavedTradespeople = () => {
-    Alert.alert('Guardados', `Tienes ${mockUser.savedTradespeople.length} profesionales guardados`);
+    Alert.alert('Guardados', `Tienes ${savedCount} profesionales guardados`);
   };
 
   const handleHelp = () => {
@@ -49,6 +96,42 @@ export default function ProfileScreen() {
     ]);
   };
 
+  const handleSaveProfessionalInfo = async () => {
+    const parsedHourlyRate = Number(hourlyRateInput);
+    const parsedYearsExperience = Number(yearsExperienceInput);
+
+    if (!bioInput.trim()) {
+      Alert.alert('Datos incompletos', 'Agrega una biografía para tu perfil profesional.');
+      return;
+    }
+
+    if (!Number.isFinite(parsedHourlyRate) || parsedHourlyRate <= 0) {
+      Alert.alert('Tarifa inválida', 'Ingresa una tarifa por hora mayor a 0.');
+      return;
+    }
+
+    if (!Number.isFinite(parsedYearsExperience) || parsedYearsExperience < 0) {
+      Alert.alert('Experiencia inválida', 'Ingresa años de experiencia válidos.');
+      return;
+    }
+
+    setIsSavingProfessionalInfo(true);
+    try {
+      await updateTradespersonProfile({
+        bio: bioInput.trim(),
+        hourlyRate: parsedHourlyRate,
+        yearsExperience: parsedYearsExperience,
+      });
+      Alert.alert('Perfil actualizado', 'Tu perfil profesional ya está completo.');
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'No se pudo actualizar el perfil profesional.';
+      Alert.alert('Error', message);
+    } finally {
+      setIsSavingProfessionalInfo(false);
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -61,14 +144,65 @@ export default function ProfileScreen() {
 
       {/* Profile Info */}
       <View style={styles.profileSection}>
-        <Image source={{ uri: mockUser.imageUrl }} style={styles.profileImage} />
-        <Text style={styles.userName}>{mockUser.name}</Text>
-        <Text style={styles.userEmail}>{mockUser.email}</Text>
+        <Image source={{ uri: avatarUrl }} style={styles.profileImage} />
+        <Text style={styles.userName}>{displayName}</Text>
+        <Text style={styles.userEmail}>{displayEmail}</Text>
+        <View style={styles.roleBadge}>
+          <Text style={styles.roleBadgeText}>{roleLabel}</Text>
+        </View>
+        <Text style={styles.onboardingStateText}>
+          Estado de onboarding: {profile?.onboarding_completed ? 'Completado' : 'Pendiente'}
+        </Text>
         <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
           <Ionicons name="pencil" size={16} color="white" />
           <Text style={styles.editButtonText}>Editar Perfil</Text>
         </TouchableOpacity>
       </View>
+
+      {profile?.role === 'tradesperson' && !isTradespersonProfileComplete && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Completa tu Perfil Profesional</Text>
+          <View style={styles.professionalPromptCard}>
+            <Text style={styles.professionalPromptText}>
+              Para recibir solicitudes, agrega tu biografía, tarifa y años de experiencia.
+            </Text>
+
+            <TextInput
+              value={bioInput}
+              onChangeText={setBioInput}
+              multiline
+              placeholder="Biografía profesional"
+              style={[styles.input, styles.bioInput]}
+            />
+            <TextInput
+              value={hourlyRateInput}
+              onChangeText={setHourlyRateInput}
+              keyboardType="numeric"
+              placeholder="Tarifa por hora (MXN)"
+              style={styles.input}
+            />
+            <TextInput
+              value={yearsExperienceInput}
+              onChangeText={setYearsExperienceInput}
+              keyboardType="numeric"
+              placeholder="Años de experiencia"
+              style={styles.input}
+            />
+
+            <TouchableOpacity
+              style={[styles.completeButton, isSavingProfessionalInfo && styles.completeButtonDisabled]}
+              onPress={handleSaveProfessionalInfo}
+              disabled={isSavingProfessionalInfo}
+            >
+              {isSavingProfessionalInfo ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.completeButtonText}>Guardar Perfil Profesional</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* Account Section */}
       <View style={styles.section}>
@@ -92,7 +226,7 @@ export default function ProfileScreen() {
             <Ionicons name="heart-outline" size={22} color="#2563eb" />
             <Text style={styles.menuItemText}>Profesionales Guardados</Text>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>{mockUser.savedTradespeople.length}</Text>
+              <Text style={styles.badgeText}>{savedCount}</Text>
             </View>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
@@ -209,7 +343,24 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 14,
     color: '#6b7280',
-    marginBottom: 16,
+    marginBottom: 8,
+  },
+  roleBadge: {
+    backgroundColor: '#e8f0ff',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginBottom: 6,
+  },
+  roleBadgeText: {
+    color: '#0b3d91',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  onboardingStateText: {
+    color: '#6b7280',
+    fontSize: 12,
+    marginBottom: 14,
   },
   editButton: {
     flexDirection: 'row',
@@ -229,6 +380,45 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     marginBottom: 10,
     paddingVertical: 10,
+  },
+  professionalPromptCard: {
+    marginHorizontal: 20,
+    marginBottom: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#dbeafe',
+    backgroundColor: '#f8fbff',
+    padding: 14,
+  },
+  professionalPromptText: {
+    color: '#1f2937',
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: '#ffffff',
+    marginBottom: 10,
+  },
+  bioInput: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  completeButton: {
+    backgroundColor: '#0b3d91',
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  completeButtonDisabled: {
+    opacity: 0.7,
+  },
+  completeButtonText: {
+    color: '#ffffff',
+    fontWeight: '700',
   },
   sectionTitle: {
     fontSize: 16,

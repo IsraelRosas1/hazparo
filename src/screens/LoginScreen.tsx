@@ -83,10 +83,6 @@ export default function LoginScreen() {
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
           <Text style={styles.linkText}>¿No tienes cuenta? Crear cuenta</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Onboarding')}>
-          <Text style={styles.secondaryLinkText}>Ver onboarding</Text>
-        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
@@ -146,10 +142,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#0b3d91',
     fontWeight: '600',
-  },
-  secondaryLinkText: {
-    marginTop: 10,
-    textAlign: 'center',
-    color: '#6b7280',
   },
 });

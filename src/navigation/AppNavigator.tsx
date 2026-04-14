@@ -67,7 +67,7 @@ function BottomTabs() {
 }
 
 export default function AppNavigator() {
-  const { session, isLoading } = useAuth();
+  const { session, profile, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -87,16 +87,7 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {session ? (
-          <>
-            <Stack.Screen name="MainTabs" component={BottomTabs} options={{ headerShown: false }} />
-            <Stack.Screen
-              name="TradespersonDetail"
-              component={TradespersonDetailScreen}
-              options={{ title: 'Detalles del Profesional' }}
-            />
-          </>
-        ) : (
+        {!session ? (
           <>
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
             <Stack.Screen
@@ -104,10 +95,20 @@ export default function AppNavigator() {
               component={RegisterScreen}
               options={{ title: 'Crear Cuenta' }}
             />
+          </>
+        ) : !profile?.onboarding_completed ? (
+          <Stack.Screen
+            name="Onboarding"
+            component={OnboardingScreen}
+            options={{ headerShown: false }}
+          />
+        ) : (
+          <>
+            <Stack.Screen name="MainTabs" component={BottomTabs} options={{ headerShown: false }} />
             <Stack.Screen
-              name="Onboarding"
-              component={OnboardingScreen}
-              options={{ title: 'Onboarding' }}
+              name="TradespersonDetail"
+              component={TradespersonDetailScreen}
+              options={{ title: 'Detalles del Profesional' }}
             />
           </>
         )}

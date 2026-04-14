@@ -40,12 +40,18 @@ export default function RegisterScreen() {
 
     setIsSubmitting(true);
     try {
-      await signUp({ email: email.trim(), password });
-      Alert.alert(
-        'Registro exitoso',
-        'Tu cuenta fue creada. Si tu proyecto requiere verificación por correo, revisa tu inbox.',
-      );
-      navigation.navigate('Onboarding');
+      const { hasSession } = await signUp({ email: email.trim(), password });
+
+      if (!hasSession) {
+        Alert.alert(
+          'Revisa tu correo',
+          'Confirma tu email para activar la cuenta y luego inicia sesión.',
+        );
+        navigation.navigate('Login');
+        return;
+      }
+
+      Alert.alert('Registro exitoso', 'Tu cuenta fue creada. Continuemos con tu onboarding.');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'No se pudo crear la cuenta.';
       Alert.alert('Error de registro', message);

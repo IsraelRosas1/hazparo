@@ -1,27 +1,54 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { RootStackParamList } from '../navigation/AppNavigator';
 import { useAuth } from '../context/AuthContext';
+import type { TradeType } from '../types';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Onboarding'>;
 type Persona = 'client' | 'tradesperson';
 
+const tradeLabels: Record<TradeType, string> = {
+  electrician: 'Electricista',
+  bricklayer: 'Albañil',
+  plumber: 'Plomero',
+  carpenter: 'Carpintero',
+  mechanic: 'Mecánico',
+  limpieza: 'Limpieza',
+  jardineria: 'Jardinería',
+  pintura: 'Pintura',
+};
+
+const trades: TradeType[] = [
+  'electrician',
+  'bricklayer',
+  'plumber',
+  'carpenter',
+  'mechanic',
+  'limpieza',
+  'jardineria',
+  'pintura',
+];
+
 export default function OnboardingScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const { session } = useAuth();
+  const { completeOnboarding } = useAuth();
   const [persona, setPersona] = useState<Persona>('client');
+  const [trade, setTrade] = useState<TradeType>('electrician');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleContinue = () => {
-    Alert.alert(
-      'Onboarding listo',
-      `Seleccionaste el perfil: ${persona === 'client' ? 'Cliente' : 'Profesional'}.`,
-    );
+  const handleContinue = async () => {
+    if (persona === 'tradesperson' && !trade) {
+      Alert.alert('Completa tu perfil', 'Selecciona tu oficio principal para continuar.');
+      return;
+    }
 
-    if (!session) {
-      navigation.navigate('Login');
+    setIsSubmitting(true);
+    try {
+      await completeOnboarding({ role: persona, trade: persona === 'tradesperson' ? trade : undefined });
+      Alert.alert('Onboarding completado', 'Tu perfil ha sido configurado correctamente.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudo guardar el onboarding.';
+      Alert.alert('Error', message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -47,8 +74,35 @@ export default function OnboardingScreen() {
           <Text style={styles.optionDescription}>Recibe solicitudes y gestiona tus servicios.</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.primaryButton} onPress={handleContinue}>
-          <Text style={styles.primaryButtonText}>Continuar</Text>
+        {persona === 'tradesperson' && (
+          <View style={styles.tradePickerContainer}>
+            <Text style={styles.tradePickerTitle}>Selecciona tu oficio principal</Text>
+            <View style={styles.tradeGrid}>
+              {trades.map((item) => (
+                <TouchableOpacity
+                  key={item}
+                  style={[styles.tradeOption, trade === item && styles.tradeOptionActive]}
+                  onPress={() => setTrade(item)}
+                >
+                  <Text style={[styles.tradeOptionText, trade === item && styles.tradeOptionTextActive]}>
+                    {tradeLabels[item]}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+        <TouchableOpacity
+          style={[styles.primaryButton, isSubmitting && styles.disabledButton]}
+          onPress={handleContinue}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.primaryButtonText}>Continuar</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -101,6 +155,42 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: '#4b5563',
   },
+  tradePickerContainer: {
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  tradePickerTitle: {
+    fontSize: 14,
+    color: '#374151',
+    marginBottom: 10,
+    fontWeight: '600',
+  },
+  tradeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tradeOption: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    backgroundColor: '#ffffff',
+  },
+  tradeOptionActive: {
+    borderColor: '#0b3d91',
+    backgroundColor: '#eef4ff',
+  },
+  tradeOptionText: {
+    color: '#374151',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  tradeOptionTextActive: {
+    color: '#0b3d91',
+    fontWeight: '700',
+  },
   primaryButton: {
     marginTop: 8,
     backgroundColor: '#0b3d91',
@@ -111,5 +201,8 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     fontWeight: '700',
+  },
+  disabledButton: {
+    opacity: 0.7,
   },
 });
