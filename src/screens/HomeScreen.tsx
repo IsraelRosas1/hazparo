@@ -75,9 +75,9 @@ export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [selectedTrade, setSelectedTrade] = useState<TradeType | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [userLocation, setUserLocation] = useState<realUserLocation| null> (null);
+  const [userLocation, setUserLocation] = useState<realUserLocation | null>(null);
   // const [filteredTradespeople, setFilteredTradespeople] = useState<Tradesperson[]>(mockTradespeople);
-// 1. Keep a master list of localized people so they don't 'reset'
+  // 1. Keep a master list of localized people so they don't 'reset'
   const [masterTradespeople, setMasterTradespeople] = useState<Tradesperson[]>([]);
   const [filteredTradespeople, setFilteredTradespeople] = useState<Tradesperson[]>([]);
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
@@ -89,40 +89,61 @@ export default function HomeScreen() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [openDetails, setOpenDetails] = useState('');
 
-  const tradeQuestionnaires: Record<TradeType, { id: string; text: string; options?: string[] }[]> = {
-    electrician: [
-      { id: 'urgency', text: '¿Qué tan urgente es el trabajo?', options: ['Inmediato', 'Esta semana', 'Flexible'] },
-      { id: 'serviceType', text: 'Tipo de servicio', options: ['Instalación', 'Reparación', 'Mantenimiento'] },
-    ],
-    plumber: [
-      { id: 'urgency', text: '¿Qué tan urgente es el trabajo?', options: ['Inmediato', 'Esta semana', 'Flexible'] },
-      { id: 'problem', text: '¿Qué problema principal?' , options: ['Fuga', 'Atasco', 'Instalación']},
-    ],
-    carpenter: [
-      { id: 'project', text: '¿Qué proyecto necesita?', options: ['Muebles', 'Reparación', 'Instalación'] },
-      { id: 'size', text: 'Tamaño del trabajo', options: ['Pequeño', 'Mediano', 'Grande'] },
-    ],
-    bricklayer: [
-      { id: 'type', text: 'Tipo de obra', options: ['Muro', 'Reparación', 'Pavimento'] },
-      { id: 'scale', text: 'Escala del proyecto', options: ['Pequeña', 'Mediana', 'Grande'] },
-    ],
-    mechanic: [
-      { id: 'vehicle', text: 'Tipo de vehículo', options: ['Auto', 'Camioneta', 'Moto'] },
-      { id: 'issue', text: 'Problema principal', options: ['Frenos', 'Motor', 'Otros'] },
-    ],
-    limpieza: [
-      { id: 'space', text: 'Tipo de espacio', options: ['Casa', 'Departamento', 'Oficina'] },
-      { id: 'frequency', text: 'Frecuencia deseada', options: ['Una vez', 'Semanal', 'Mensual'] },
-    ],
-    jardineria: [
-      { id: 'service', text: 'Servicio requerido', options: ['Poda', 'Diseño', 'Mantenimiento'] },
-      { id: 'area', text: 'Tamaño del área', options: ['Pequeña', 'Mediana', 'Grande'] },
-    ],
-    pintura: [
-      { id: 'area', text: 'Área a pintar', options: ['Interior', 'Exterior', 'Ambos'] },
-      { id: 'surface', text: 'Superficie', options: ['Paredes', 'Techo', 'Madera'] },
-    ],
-  };
+  const tradeQuestionnaires: Record<TradeType, { id: string; text: string; options?: string[] }[]> =
+    {
+      electrician: [
+        {
+          id: 'urgency',
+          text: '¿Qué tan urgente es el trabajo?',
+          options: ['Inmediato', 'Esta semana', 'Flexible'],
+        },
+        {
+          id: 'serviceType',
+          text: 'Tipo de servicio',
+          options: ['Instalación', 'Reparación', 'Mantenimiento'],
+        },
+      ],
+      plumber: [
+        {
+          id: 'urgency',
+          text: '¿Qué tan urgente es el trabajo?',
+          options: ['Inmediato', 'Esta semana', 'Flexible'],
+        },
+        {
+          id: 'problem',
+          text: '¿Qué problema principal?',
+          options: ['Fuga', 'Atasco', 'Instalación'],
+        },
+      ],
+      carpenter: [
+        {
+          id: 'project',
+          text: '¿Qué proyecto necesita?',
+          options: ['Muebles', 'Reparación', 'Instalación'],
+        },
+        { id: 'size', text: 'Tamaño del trabajo', options: ['Pequeño', 'Mediano', 'Grande'] },
+      ],
+      bricklayer: [
+        { id: 'type', text: 'Tipo de obra', options: ['Muro', 'Reparación', 'Pavimento'] },
+        { id: 'scale', text: 'Escala del proyecto', options: ['Pequeña', 'Mediana', 'Grande'] },
+      ],
+      mechanic: [
+        { id: 'vehicle', text: 'Tipo de vehículo', options: ['Auto', 'Camioneta', 'Moto'] },
+        { id: 'issue', text: 'Problema principal', options: ['Frenos', 'Motor', 'Otros'] },
+      ],
+      limpieza: [
+        { id: 'space', text: 'Tipo de espacio', options: ['Casa', 'Departamento', 'Oficina'] },
+        { id: 'frequency', text: 'Frecuencia deseada', options: ['Una vez', 'Semanal', 'Mensual'] },
+      ],
+      jardineria: [
+        { id: 'service', text: 'Servicio requerido', options: ['Poda', 'Diseño', 'Mantenimiento'] },
+        { id: 'area', text: 'Tamaño del área', options: ['Pequeña', 'Mediana', 'Grande'] },
+      ],
+      pintura: [
+        { id: 'area', text: 'Área a pintar', options: ['Interior', 'Exterior', 'Ambos'] },
+        { id: 'surface', text: 'Superficie', options: ['Paredes', 'Techo', 'Madera'] },
+      ],
+    };
 
   const requestLocationPermission = async () => {
     try {
@@ -133,9 +154,9 @@ export default function HomeScreen() {
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
         };
-        const localizedData = mockTradespeople.map(tp => ({
+        const localizedData = mockTradespeople.map((tp) => ({
           ...tp,
-          location: getRandomLocation(userCoords)
+          location: getRandomLocation(userCoords),
         }));
         setUserLocation(userCoords);
         setFilteredTradespeople(localizedData);
@@ -147,40 +168,35 @@ export default function HomeScreen() {
     }
   };
   useEffect(() => {
-    
     requestLocationPermission();
   }, []);
-// Run the filter whenever trade, search, OR the master list changes
+  // Run the filter whenever trade, search, OR the master list changes
   useEffect(() => {
     filterTradespeople();
   }, [selectedTrade, searchQuery, masterTradespeople]);
   const filterTradespeople = () => {
-      // Filter from the MASTER list (localized), not the mock import
-      let filtered = [...masterTradespeople];
+    // Filter from the MASTER list (localized), not the mock import
+    let filtered = [...masterTradespeople];
 
-      if (selectedTrade) {
-        filtered = filtered.filter((tp) => tp.trade === selectedTrade);
-      }
+    if (selectedTrade) {
+      filtered = filtered.filter((tp) => tp.trade === selectedTrade);
+    }
 
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        filtered = filtered.filter(
-          (tp) =>
-            tp.name.toLowerCase().includes(query) ||
-            tp.trade.toLowerCase().includes(query)
-        );
-      }
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (tp) => tp.name.toLowerCase().includes(query) || tp.trade.toLowerCase().includes(query),
+      );
+    }
 
-      setFilteredTradespeople(filtered);
-    };
-//   useEffect(() => {
-//   if (userLocation) {
-//     console.log("State updated! User is now at:", userLocation.latitude, userLocation.longitude);
-//   }
+    setFilteredTradespeople(filtered);
+  };
+  //   useEffect(() => {
+  //   if (userLocation) {
+  //     console.log("State updated! User is now at:", userLocation.latitude, userLocation.longitude);
+  //   }
 
-
-// }, [userLocation]); // This runs every time userLocation changes
-
+  // }, [userLocation]); // This runs every time userLocation changes
 
   const handleMarkerPress = (tradesperson: Tradesperson) => {
     navigation.navigate('TradespersonDetail', { tradespersonId: tradesperson.id });
@@ -190,30 +206,37 @@ export default function HomeScreen() {
     if (!searchModalQuery) {
       return trades;
     }
-    
+
     const query = searchModalQuery.toLowerCase();
-    return trades.filter(trade => 
-      tradeLabels[trade].toLowerCase().includes(query) ||
-      trade.toLowerCase().includes(query)
+    return trades.filter(
+      (trade) =>
+        tradeLabels[trade].toLowerCase().includes(query) || trade.toLowerCase().includes(query),
     );
   };
 
   const getFilteredTradespeopleForModal = () => {
     if (!selectedModalTrade) return [];
-    
-    let filtered = masterTradespeople.filter(tp => tp.trade === selectedModalTrade);
-    
+
+    let filtered = masterTradespeople.filter((tp) => tp.trade === selectedModalTrade);
+
     if (searchModalQuery) {
       const query = searchModalQuery.toLowerCase();
-      filtered = filtered.filter(tp =>
-        tp.name.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter((tp) => tp.name.toLowerCase().includes(query));
     }
-    
+
     return filtered;
   };
 
-  const trades: TradeType[] = ['electrician', 'bricklayer', 'plumber', 'carpenter', 'mechanic', 'limpieza', 'jardineria', 'pintura'];
+  const trades: TradeType[] = [
+    'electrician',
+    'bricklayer',
+    'plumber',
+    'carpenter',
+    'mechanic',
+    'limpieza',
+    'jardineria',
+    'pintura',
+  ];
 
   if (!userLocation) {
     return (
@@ -226,17 +249,54 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       {/* Inicio content sections (replaces map) */}
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 120, paddingTop: 100 }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 120, paddingTop: 100 }}
+      >
         <View style={{ padding: 20 }}>
-          <Text style={{ fontSize: 22, fontWeight: '700', marginBottom: 8 }}>Popular en Hazparo</Text>
+          <Text style={{ fontSize: 22, fontWeight: '700', marginBottom: 8 }}>
+            Popular en Hazparo
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {trades.slice(0, 6).map((t) => (
-              <TouchableOpacity key={t} style={{ width: 140, height: 120, backgroundColor: '#fff', marginRight: 12, borderRadius: 12, padding: 12, justifyContent: 'space-between', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 }} onPress={() => { setIsSearchModalVisible(true); setSelectedModalTrade(t); }}>
+              <TouchableOpacity
+                key={t}
+                style={{
+                  width: 140,
+                  height: 120,
+                  backgroundColor: '#fff',
+                  marginRight: 12,
+                  borderRadius: 12,
+                  padding: 12,
+                  justifyContent: 'space-between',
+                  shadowColor: '#000',
+                  shadowOpacity: 0.06,
+                  shadowRadius: 6,
+                  elevation: 2,
+                }}
+                onPress={() => {
+                  setIsSearchModalVisible(true);
+                  setSelectedModalTrade(t);
+                }}
+              >
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   {tradeLogos[t] ? (
-                    <Image source={tradeLogos[t]} style={{ width: 40, height: 40, borderRadius: 8 }} resizeMode="cover" />
+                    <Image
+                      source={tradeLogos[t]}
+                      style={{ width: 40, height: 40, borderRadius: 8 }}
+                      resizeMode="cover"
+                    />
                   ) : (
-                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: tradeColors[t], justifyContent: 'center', alignItems: 'center' }}>
+                    <View
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 20,
+                        backgroundColor: tradeColors[t],
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    >
                       <Ionicons name={tradeIcons[t]} size={20} color="#fff" />
                     </View>
                   )}
@@ -249,24 +309,64 @@ export default function HomeScreen() {
 
           <View style={{ height: 20 }} />
 
-          <Text style={{ fontSize: 20, fontWeight: '700', marginBottom: 8 }}>Recomendados cerca</Text>
+          <Text style={{ fontSize: 20, fontWeight: '700', marginBottom: 8 }}>
+            Recomendados cerca
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {filteredTradespeople.slice(0, 8).map(tp => (
-              <TouchableOpacity key={tp.id} style={{ width: 180, marginRight: 12, backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }} onPress={() => handleMarkerPress(tp)}>
-                <Image source={{ uri: tp.imageUrl }} style={{ width: '100%', height: 90, borderRadius: 8 }} />
+            {filteredTradespeople.slice(0, 8).map((tp) => (
+              <TouchableOpacity
+                key={tp.id}
+                style={{
+                  width: 180,
+                  marginRight: 12,
+                  backgroundColor: '#fff',
+                  borderRadius: 12,
+                  padding: 12,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.05,
+                  shadowRadius: 6,
+                  elevation: 2,
+                }}
+                onPress={() => handleMarkerPress(tp)}
+              >
+                <Image
+                  source={{ uri: tp.imageUrl }}
+                  style={{ width: '100%', height: 90, borderRadius: 8 }}
+                />
                 <Text style={{ marginTop: 8, fontWeight: '700' }}>{tp.name}</Text>
-                <Text style={{ color: '#6b7280' }}>⭐ {tp.rating.toFixed(1)} • ${tp.hourlyRate}/hr</Text>
+                <Text style={{ color: '#6b7280' }}>
+                  ⭐ {tp.rating.toFixed(1)} • ${tp.hourlyRate}/hr
+                </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
           <View style={{ height: 20 }} />
 
-          <Text style={{ fontSize: 20, fontWeight: '700', marginBottom: 8 }}>Nuevos en tu área</Text>
+          <Text style={{ fontSize: 20, fontWeight: '700', marginBottom: 8 }}>
+            Nuevos en tu área
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {filteredTradespeople.slice(2, 10).map(tp => (
-              <TouchableOpacity key={tp.id} style={{ width: 160, marginRight: 12, backgroundColor: '#fff', borderRadius: 12, padding: 12, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 }} onPress={() => handleMarkerPress(tp)}>
-                <Image source={{ uri: tp.imageUrl }} style={{ width: '100%', height: 80, borderRadius: 8 }} />
+            {filteredTradespeople.slice(2, 10).map((tp) => (
+              <TouchableOpacity
+                key={tp.id}
+                style={{
+                  width: 160,
+                  marginRight: 12,
+                  backgroundColor: '#fff',
+                  borderRadius: 12,
+                  padding: 12,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.05,
+                  shadowRadius: 6,
+                  elevation: 2,
+                }}
+                onPress={() => handleMarkerPress(tp)}
+              >
+                <Image
+                  source={{ uri: tp.imageUrl }}
+                  style={{ width: '100%', height: 80, borderRadius: 8 }}
+                />
                 <Text style={{ marginTop: 8, fontWeight: '700' }}>{tp.name}</Text>
                 <Text style={{ color: '#6b7280' }}>{tradeLabels[tp.trade]}</Text>
               </TouchableOpacity>
@@ -276,7 +376,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Search bar */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.searchContainer}
         onPress={() => navigation.navigate('Buscar')}
       >
@@ -292,7 +392,8 @@ export default function HomeScreen() {
       {/* Results count */}
       <View style={styles.resultsContainer}>
         <Text style={styles.resultsText}>
-          {filteredTradespeople.length} {filteredTradespeople.length === 1 ? 'profesional' : 'profesionales'} cerca
+          {filteredTradespeople.length}{' '}
+          {filteredTradespeople.length === 1 ? 'profesional' : 'profesionales'} cerca
         </Text>
       </View>
 
@@ -310,7 +411,7 @@ export default function HomeScreen() {
         <View style={styles.modalFullScreen}>
           {/* Modal Header */}
           <View style={styles.modalHeader}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backButton}
               onPress={() => {
                 if (selectedModalTrade) {
@@ -321,7 +422,11 @@ export default function HomeScreen() {
                 }
               }}
             >
-              <Ionicons name={selectedModalTrade ? "arrow-back" : "close"} size={28} color="#6b7280" />
+              <Ionicons
+                name={selectedModalTrade ? 'arrow-back' : 'close'}
+                size={28}
+                color="#6b7280"
+              />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>
               {selectedModalTrade ? tradeLabels[selectedModalTrade] : 'Seleccionar Profesional'}
@@ -334,55 +439,124 @@ export default function HomeScreen() {
             <Ionicons name="search" size={20} color="#6b7280" />
             <TextInput
               style={styles.modalSearchInput}
-              placeholder={selectedModalTrade ? "Buscar en esta profesión..." : "Buscar oficio..."}
+              placeholder={selectedModalTrade ? 'Buscar en esta profesión...' : 'Buscar oficio...'}
               placeholderTextColor="#9ca3af"
               value={searchModalQuery}
               onChangeText={setSearchModalQuery}
             />
             {/* Questionnaire modal */}
-            <Modal visible={questionnaireVisible} animationType="slide" transparent={true} onRequestClose={() => setQuestionnaireVisible(false)}>
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-                <View style={{ width: '94%', backgroundColor: 'white', borderRadius: 12, padding: 16 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#0b3d91' }}>Solicitud - {questionTradesperson ? questionTradesperson.name : ''}</Text>
+            <Modal
+              visible={questionnaireVisible}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => setQuestionnaireVisible(false)}
+            >
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(0,0,0,0.4)',
+                }}
+              >
+                <View
+                  style={{ width: '94%', backgroundColor: 'white', borderRadius: 12, padding: 16 }}
+                >
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#0b3d91' }}>
+                      Solicitud - {questionTradesperson ? questionTradesperson.name : ''}
+                    </Text>
                     <TouchableOpacity onPress={() => setQuestionnaireVisible(false)}>
                       <Ionicons name="close" size={24} color="#6b7280" />
                     </TouchableOpacity>
                   </View>
 
                   <View style={{ marginTop: 12 }}>
-                    {(questionTradesperson && tradeQuestionnaires[questionTradesperson.trade]) ? (
-                      tradeQuestionnaires[questionTradesperson.trade].map(q => (
-                        <View key={q.id} style={{ marginBottom: 12 }}>
-                          <Text style={{ fontWeight: '600' }}>{q.text}</Text>
-                          <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                            {q.options?.map(opt => (
-                              <TouchableOpacity key={opt} onPress={() => setAnswers(prev => ({ ...prev, [q.id]: opt }))} style={{ padding: 8, marginRight: 8, borderRadius: 8, backgroundColor: answers[q.id] === opt ? '#0b3d91' : '#f3f4f6' }}>
-                                <Text style={{ color: answers[q.id] === opt ? '#fff' : '#1f2937' }}>{opt}</Text>
-                              </TouchableOpacity>
-                            ))}
+                    {questionTradesperson && tradeQuestionnaires[questionTradesperson.trade]
+                      ? tradeQuestionnaires[questionTradesperson.trade].map((q) => (
+                          <View key={q.id} style={{ marginBottom: 12 }}>
+                            <Text style={{ fontWeight: '600' }}>{q.text}</Text>
+                            <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                              {q.options?.map((opt) => (
+                                <TouchableOpacity
+                                  key={opt}
+                                  onPress={() => setAnswers((prev) => ({ ...prev, [q.id]: opt }))}
+                                  style={{
+                                    padding: 8,
+                                    marginRight: 8,
+                                    borderRadius: 8,
+                                    backgroundColor: answers[q.id] === opt ? '#0b3d91' : '#f3f4f6',
+                                  }}
+                                >
+                                  <Text
+                                    style={{ color: answers[q.id] === opt ? '#fff' : '#1f2937' }}
+                                  >
+                                    {opt}
+                                  </Text>
+                                </TouchableOpacity>
+                              ))}
+                            </View>
                           </View>
-                        </View>
-                      ))
-                    ) : null}
+                        ))
+                      : null}
 
                     <Text style={{ fontWeight: '600' }}>Detalles (opcional)</Text>
-                    <TextInput value={openDetails} onChangeText={setOpenDetails} placeholder="Añade más información" multiline style={{ minHeight: 80, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, padding: 8, marginTop: 8 }} />
+                    <TextInput
+                      value={openDetails}
+                      onChangeText={setOpenDetails}
+                      placeholder="Añade más información"
+                      multiline
+                      style={{
+                        minHeight: 80,
+                        borderWidth: 1,
+                        borderColor: '#e5e7eb',
+                        borderRadius: 8,
+                        padding: 8,
+                        marginTop: 8,
+                      }}
+                    />
                   </View>
 
                   <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
-                    <TouchableOpacity onPress={() => { setQuestionnaireVisible(false); setAnswers({}); setOpenDetails(''); setQuestionTradesperson(null); }} style={{ paddingHorizontal: 12, paddingVertical: 8, marginRight: 8 }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setQuestionnaireVisible(false);
+                        setAnswers({});
+                        setOpenDetails('');
+                        setQuestionTradesperson(null);
+                      }}
+                      style={{ paddingHorizontal: 12, paddingVertical: 8, marginRight: 8 }}
+                    >
                       <Text style={{ color: '#6b7280' }}>Cancelar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                      // send the request (mock)
-                      setQuestionnaireVisible(false);
-                      Alert.alert('Solicitud enviada', 'Tu solicitud fue enviada al profesional.');
-                      setAnswers({}); setOpenDetails(''); setQuestionTradesperson(null);
-                      setIsSearchModalVisible(false);
-                      setSearchModalQuery('');
-                      setSelectedModalTrade(null);
-                    }} style={{ backgroundColor: '#0b3d91', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        // send the request (mock)
+                        setQuestionnaireVisible(false);
+                        Alert.alert(
+                          'Solicitud enviada',
+                          'Tu solicitud fue enviada al profesional.',
+                        );
+                        setAnswers({});
+                        setOpenDetails('');
+                        setQuestionTradesperson(null);
+                        setIsSearchModalVisible(false);
+                        setSearchModalQuery('');
+                        setSelectedModalTrade(null);
+                      }}
+                      style={{
+                        backgroundColor: '#0b3d91',
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        borderRadius: 8,
+                      }}
+                    >
                       <Text style={{ color: 'white', fontWeight: '700' }}>Enviar</Text>
                     </TouchableOpacity>
                   </View>
@@ -401,18 +575,26 @@ export default function HomeScreen() {
             <Text style={{ color: '#6b7280', marginBottom: 6 }}>Dirección</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TextInput
-                style={[styles.modalSearchInput, { flex: 1, backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 10 }]}
+                style={[
+                  styles.modalSearchInput,
+                  { flex: 1, backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 10 },
+                ]}
                 placeholder="Introduce o cambia tu dirección"
                 value={address}
                 onChangeText={setAddress}
               />
-              <TouchableOpacity style={{ marginLeft: 8 }} onPress={() => {
-                if (userLocation) {
-                  setAddress(`Lat: ${userLocation.latitude.toFixed(4)}, Lon: ${userLocation.longitude.toFixed(4)}`);
-                } else {
-                  Alert.alert('Ubicación', 'No se pudo obtener la ubicación.');
-                }
-              }}>
+              <TouchableOpacity
+                style={{ marginLeft: 8 }}
+                onPress={() => {
+                  if (userLocation) {
+                    setAddress(
+                      `Lat: ${userLocation.latitude.toFixed(4)}, Lon: ${userLocation.longitude.toFixed(4)}`,
+                    );
+                  } else {
+                    Alert.alert('Ubicación', 'No se pudo obtener la ubicación.');
+                  }
+                }}
+              >
                 <Ionicons name="locate" size={24} color="#0b3d91" />
               </TouchableOpacity>
             </View>
@@ -425,7 +607,7 @@ export default function HomeScreen() {
               data={getFilteredTradesForModal()}
               keyExtractor={(item) => item}
               renderItem={({ item: trade }) => {
-                const tradeCount = masterTradespeople.filter(tp => tp.trade === trade).length;
+                const tradeCount = masterTradespeople.filter((tp) => tp.trade === trade).length;
                 return (
                   <TouchableOpacity
                     style={styles.tradeItem}
@@ -436,7 +618,9 @@ export default function HomeScreen() {
                     </View>
                     <View style={styles.tradeInfo}>
                       <Text style={styles.tradeItemText}>{tradeLabels[trade]}</Text>
-                      <Text style={styles.tradeCount}>{tradeCount} {tradeCount === 1 ? 'profesional' : 'profesionales'}</Text>
+                      <Text style={styles.tradeCount}>
+                        {tradeCount} {tradeCount === 1 ? 'profesional' : 'profesionales'}
+                      </Text>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
                   </TouchableOpacity>
@@ -455,21 +639,37 @@ export default function HomeScreen() {
               data={getFilteredTradespeopleForModal()}
               keyExtractor={(item) => item.id}
               renderItem={({ item: tradesperson }) => (
-                <View style={[styles.tradespersonItem, { justifyContent: 'space-between' }]}> 
+                <View style={[styles.tradespersonItem, { justifyContent: 'space-between' }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                    <Image source={{ uri: tradesperson.imageUrl }} style={{ width: 56, height: 56, borderRadius: 28, marginRight: 12 }} />
+                    <Image
+                      source={{ uri: tradesperson.imageUrl }}
+                      style={{ width: 56, height: 56, borderRadius: 28, marginRight: 12 }}
+                    />
                     <View style={styles.tradespersonInfo}>
                       <Text style={styles.tradespersonName}>{tradesperson.name}</Text>
-                      <Text style={styles.tradespersonTrade}>{tradeLabels[tradesperson.trade]} • ⭐ {tradesperson.rating.toFixed(1)}</Text>
+                      <Text style={styles.tradespersonTrade}>
+                        {tradeLabels[tradesperson.trade]} • ⭐ {tradesperson.rating.toFixed(1)}
+                      </Text>
                     </View>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <Text style={{ color: '#6b7280' }}>${tradesperson.hourlyRate}/hr</Text>
-                    <TouchableOpacity onPress={() => {
-                      setQuestionTradesperson(tradesperson);
-                      setQuestionnaireVisible(true);
-                    }} style={{ marginTop: 8, backgroundColor: '#0b3d91', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }}>
-                      <Text style={{ color: '#fff', fontWeight: '700' }}>Solicitar Presupuesto</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setQuestionTradesperson(tradesperson);
+                        setQuestionnaireVisible(true);
+                      }}
+                      style={{
+                        marginTop: 8,
+                        backgroundColor: '#0b3d91',
+                        paddingHorizontal: 10,
+                        paddingVertical: 6,
+                        borderRadius: 8,
+                      }}
+                    >
+                      <Text style={{ color: '#fff', fontWeight: '700' }}>
+                        Solicitar Presupuesto
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -599,7 +799,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     height: '80%',
     width: '100%',
-    overflow: 'hidden', 
+    overflow: 'hidden',
   },
   modalContent: {
     backgroundColor: 'white',

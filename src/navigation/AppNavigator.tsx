@@ -63,11 +63,7 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen
-          name="MainTabs"
-          component={BottomTabs}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="MainTabs" component={BottomTabs} options={{ headerShown: false }} />
         <Stack.Screen
           name="TradespersonDetail"
           component={TradespersonDetailScreen}

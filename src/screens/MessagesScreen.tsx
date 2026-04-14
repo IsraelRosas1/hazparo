@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { mockMessages } from '../data/mockData';
 import { Message } from '../types';
@@ -34,10 +27,7 @@ export default function MessagesScreen() {
           <Text style={styles.tradespersonName}>{item.tradespersonName}</Text>
           <Text style={styles.timestamp}>{formatTimestamp(item.timestamp)}</Text>
         </View>
-        <Text
-          style={[styles.lastMessage, item.unread && styles.unreadMessage]}
-          numberOfLines={2}
-        >
+        <Text style={[styles.lastMessage, item.unread && styles.unreadMessage]} numberOfLines={2}>
           {item.lastMessage}
         </Text>
       </View>

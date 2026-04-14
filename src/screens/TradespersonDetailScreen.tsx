@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -67,7 +59,7 @@ export default function TradespersonDetailScreen() {
           name={i <= rating ? 'star' : i - 0.5 <= rating ? 'star-half' : 'star-outline'}
           size={16}
           color="#f59e0b"
-        />
+        />,
       );
     }
     return stars;
@@ -82,20 +74,11 @@ export default function TradespersonDetailScreen() {
       <View style={styles.mainInfo}>
         <View style={styles.nameRow}>
           <Text style={styles.name}>{tradesperson.name}</Text>
-          {tradesperson.verified && (
-            <Ionicons name="checkmark-circle" size={24} color="#2563eb" />
-          )}
+          {tradesperson.verified && <Ionicons name="checkmark-circle" size={24} color="#2563eb" />}
         </View>
         <View style={styles.tradeRow}>
-          <View
-            style={[
-              styles.tradeBadge,
-              { backgroundColor: tradeColors[tradesperson.trade] },
-            ]}
-          >
-            <Text style={styles.tradeBadgeText}>
-              {tradeLabels[tradesperson.trade]}
-            </Text>
+          <View style={[styles.tradeBadge, { backgroundColor: tradeColors[tradesperson.trade] }]}>
+            <Text style={styles.tradeBadgeText}>{tradeLabels[tradesperson.trade]}</Text>
           </View>
           <Text style={styles.experience}>{tradesperson.yearsExperience} años de experiencia</Text>
         </View>

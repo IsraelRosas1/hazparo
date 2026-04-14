@@ -1,8 +1,8 @@
 import { Tradesperson, Message, User } from '../types';
 // real location is 42.688169639587024 -83.2134556216277
 export type realUserLocation = {
-  latitude: number,
-  longitude: number,
+  latitude: number;
+  longitude: number;
 };
 export const INITIAL_LOCATION: realUserLocation = {
   latitude: 42.688169639587024,
@@ -187,7 +187,7 @@ export const mockTradespeople: Tradesperson[] = [
     id: '5',
     name: 'Jaime Ramirez',
     trade: 'mechanic',
-    location:{ latitude: 0, longitude: 0 },
+    location: { latitude: 0, longitude: 0 },
     hourlyRate: 90,
     bio: 'Mecánico certificado ASE especializado en reparación y mantenimiento automotriz.',
     imageUrl: 'https://i.pravatar.cc/300?img=15',
@@ -284,7 +284,14 @@ export const mockTradespeople: Tradesperson[] = [
       { day: 'Domingo', available: false, timeSlots: [] },
     ],
     reviews: [
-      { id: 'r10', userId: 'u10', userName: 'Ana Ruiz', rating: 5, comment: 'Excelente limpieza!', date: '2026-02-02' },
+      {
+        id: 'r10',
+        userId: 'u10',
+        userName: 'Ana Ruiz',
+        rating: 5,
+        comment: 'Excelente limpieza!',
+        date: '2026-02-02',
+      },
     ],
     rating: 4.9,
     yearsExperience: 6,
@@ -310,7 +317,14 @@ export const mockTradespeople: Tradesperson[] = [
       { day: 'Domingo', available: false, timeSlots: [] },
     ],
     reviews: [
-      { id: 'r11', userId: 'u11', userName: 'Josefa Martinez', rating: 5, comment: 'Mi jardín se ve mejor que nunca.', date: '2026-02-10' },
+      {
+        id: 'r11',
+        userId: 'u11',
+        userName: 'Josefa Martinez',
+        rating: 5,
+        comment: 'Mi jardín se ve mejor que nunca.',
+        date: '2026-02-10',
+      },
     ],
     rating: 4.8,
     yearsExperience: 9,
@@ -336,7 +350,14 @@ export const mockTradespeople: Tradesperson[] = [
       { day: 'Domingo', available: false, timeSlots: [] },
     ],
     reviews: [
-      { id: 'r12', userId: 'u12', userName: 'Laura Gomez', rating: 5, comment: 'Gran trabajo y limpieza después.', date: '2026-02-14' },
+      {
+        id: 'r12',
+        userId: 'u12',
+        userName: 'Laura Gomez',
+        rating: 5,
+        comment: 'Gran trabajo y limpieza después.',
+        date: '2026-02-14',
+      },
     ],
     rating: 4.9,
     yearsExperience: 7,
@@ -360,7 +381,8 @@ export const mockMessages: Message[] = [
     id: 'm2',
     tradespersonId: '3',
     tradespersonName: 'Roberto Garcia',
-    tradespersonImage: 'https://unsplash.com/photos/man-wearing-red-and-black-pullover-hoodie-9_9CaTzcm4g',
+    tradespersonImage:
+      'https://unsplash.com/photos/man-wearing-red-and-black-pullover-hoodie-9_9CaTzcm4g',
     lastMessage: 'Gracias por contactar. Me gustaría discutir los detalles del proyecto.',
     timestamp: '2026-02-02T15:45:00',
     unread: false,
@@ -369,7 +391,8 @@ export const mockMessages: Message[] = [
     id: 'm3',
     tradespersonId: '5',
     tradespersonName: 'Jaime Aguilar',
-    tradespersonImage: 'https://unsplash.com/photos/a-man-sitting-on-top-of-a-tree-stump-R5ESjuBQvz4',
+    tradespersonImage:
+      'https://unsplash.com/photos/a-man-sitting-on-top-of-a-tree-stump-R5ESjuBQvz4',
     lastMessage: 'Las piezas ya llegaron. Puedo empezar mañana mismo.',
     timestamp: '2026-02-01T09:20:00',
     unread: false,
@@ -382,7 +405,8 @@ export const mockUser: User = {
   name: 'Mauricio Lopez',
   email: 'mauricio@hotmail.com',
   phoneNumber: '(415) 555-0100',
-  imageUrl: 'https://images.unsplash.com/photo-1566848597383-0f936eb50b94?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  imageUrl:
+    'https://images.unsplash.com/photo-1566848597383-0f936eb50b94?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   location: { latitude: 0, longitude: 0 },
   savedTradespeople: ['1', '3'],
 };

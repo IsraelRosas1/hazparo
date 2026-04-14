@@ -5,12 +5,14 @@ A React Native mobile application for connecting users with local tradespeople (
 ## Features
 
 ### 🗺️ Interactive Map View
+
 - View your location and nearby tradespeople within a 20-mile radius
 - Filter tradespeople by trade type (electrician, bricklayer, plumber, carpenter, mechanic)
 - Search for specific tradespeople by name or trade
 - Color-coded markers for different trade types
 
 ### 👷 Tradesperson Profiles
+
 - Detailed profiles with photos and bio
 - Hourly rates and years of experience
 - Credentials and certifications
@@ -19,11 +21,13 @@ A React Native mobile application for connecting users with local tradespeople (
 - Direct call and message options
 
 ### 💬 Messaging
+
 - In-app messaging system
 - View conversation history
 - Unread message indicators
 
 ### 👤 User Profile
+
 - Manage your profile information
 - Payment methods
 - Booking history
@@ -50,15 +54,15 @@ A React Native mobile application for connecting users with local tradespeople (
 ### Installation
 
 1. Clone the repository:
-\`\`\`bash
-git clone <repository-url>
-cd hazparo
-\`\`\`
+   \`\`\`bash
+   git clone <repository-url>
+   cd hazparo
+   \`\`\`
 
 2. Install dependencies:
-\`\`\`bash
-npm install
-\`\`\`
+   \`\`\`bash
+   npm install
+   \`\`\`
 
 3. Configure Google Maps API:
    - Get API keys for both iOS and Android from [Google Cloud Console](https://console.cloud.google.com/)
@@ -74,6 +78,7 @@ npm start
 \`\`\`
 
 Then:
+
 - Press `i` to run on iOS simulator
 - Press `a` to run on Android emulator
 - Scan the QR code with Expo Go app on your physical device
@@ -90,21 +95,21 @@ Then:
 \`\`\`
 hazparo/
 ├── src/
-│   ├── data/
-│   │   └── mockData.ts          # Mock data for tradespeople, messages, and users
-│   ├── navigation/
-│   │   └── AppNavigator.tsx     # Navigation configuration
-│   ├── screens/
-│   │   ├── HomeScreen.tsx       # Map view with search and filters
-│   │   ├── TradespersonDetailScreen.tsx  # Tradesperson profile details
-│   │   ├── MessagesScreen.tsx   # Messages list
-│   │   └── ProfileScreen.tsx    # User profile
-│   └── types/
-│       └── index.ts             # TypeScript type definitions
-├── App.tsx                      # Root component
-├── app.json                     # Expo configuration
-├── package.json                 # Dependencies
-└── tsconfig.json               # TypeScript configuration
+│ ├── data/
+│ │ └── mockData.ts # Mock data for tradespeople, messages, and users
+│ ├── navigation/
+│ │ └── AppNavigator.tsx # Navigation configuration
+│ ├── screens/
+│ │ ├── HomeScreen.tsx # Map view with search and filters
+│ │ ├── TradespersonDetailScreen.tsx # Tradesperson profile details
+│ │ ├── MessagesScreen.tsx # Messages list
+│ │ └── ProfileScreen.tsx # User profile
+│ └── types/
+│ └── index.ts # TypeScript type definitions
+├── App.tsx # Root component
+├── app.json # Expo configuration
+├── package.json # Dependencies
+└── tsconfig.json # TypeScript configuration
 \`\`\`
 
 ## Available Trade Types
@@ -118,6 +123,7 @@ hazparo/
 ## Mock Data
 
 The app includes mock data for:
+
 - 6 tradespeople with complete profiles
 - 3 message conversations
 - 1 user profile with saved tradespeople
