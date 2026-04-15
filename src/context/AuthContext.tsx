@@ -28,6 +28,15 @@ type TradespersonProfile = {
   is_verified: boolean;
 };
 
+type ClientProfile = {
+  profile_id: string;
+  phone_number: string | null;
+  default_address: string | null;
+  city: string | null;
+  state: string | null;
+  postal_code: string | null;
+};
+
 type CompleteOnboardingInput = {
   role: ProfileRole;
   trade?: TradeType;
@@ -39,11 +48,21 @@ type UpdateTradespersonProfileInput = {
   yearsExperience?: number;
 };
 
+type UpdateClientProfileInput = {
+  phoneNumber: string;
+  defaultAddress: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+};
+
 type AuthContextValue = {
   session: Session | null;
   profile: Profile | null;
   tradespersonProfile: TradespersonProfile | null;
+  clientProfile: ClientProfile | null;
   isTradespersonProfileComplete: boolean;
+  isClientProfileComplete: boolean;
   isLoading: boolean;
   signIn: (credentials: AuthCredentials) => Promise<void>;
   signUp: (credentials: AuthCredentials) => Promise<{ hasSession: boolean }>;
@@ -51,6 +70,7 @@ type AuthContextValue = {
   refreshProfile: () => Promise<void>;
   completeOnboarding: (input: CompleteOnboardingInput) => Promise<void>;
   updateTradespersonProfile: (input: UpdateTradespersonProfileInput) => Promise<void>;
+  updateClientProfile: (input: UpdateClientProfileInput) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -59,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [tradespersonProfile, setTradespersonProfile] = useState<TradespersonProfile | null>(null);
+  const [clientProfile, setClientProfile] = useState<ClientProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
@@ -160,6 +181,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
+  const fetchClientProfile = async (userId: string): Promise<ClientProfile | null> => {
+    const { data, error } = await supabase
+      .from('client_profiles')
+      .select('profile_id, phone_number, default_address, city, state, postal_code')
+      .eq('profile_id', userId)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    return {
+      profile_id: data.profile_id,
+      phone_number: data.phone_number,
+      default_address: data.default_address,
+      city: data.city,
+      state: data.state,
+      postal_code: data.postal_code,
+    };
+  };
+
   const refreshTradespersonProfile = async (userId: string, role: ProfileRole | null) => {
     if (role !== 'tradesperson') {
       setTradespersonProfile(null);
@@ -170,16 +216,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTradespersonProfile(nextTradespersonProfile);
   };
 
+  const refreshClientProfile = async (userId: string, role: ProfileRole | null) => {
+    if (role !== 'client') {
+      setClientProfile(null);
+      return;
+    }
+
+    const nextClientProfile = await fetchClientProfile(userId);
+    setClientProfile(nextClientProfile);
+  };
+
   const refreshProfile = async () => {
     if (!session) {
       setProfile(null);
       setTradespersonProfile(null);
+      setClientProfile(null);
       return;
     }
 
     const nextProfile = await fetchProfile(session.user.id);
     setProfile(nextProfile);
     await refreshTradespersonProfile(session.user.id, nextProfile?.role ?? null);
+    await refreshClientProfile(session.user.id, nextProfile?.role ?? null);
   };
 
   useEffect(() => {
@@ -204,10 +262,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (nextProfile) {
           setProfile(nextProfile);
           await refreshTradespersonProfile(initialSession.user.id, nextProfile.role);
+          await refreshClientProfile(initialSession.user.id, nextProfile.role);
         }
       } else if (isMounted) {
         setProfile(null);
         setTradespersonProfile(null);
+        setClientProfile(null);
       }
 
       if (isMounted) {
@@ -220,6 +280,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(null);
         setProfile(null);
         setTradespersonProfile(null);
+        setClientProfile(null);
         setIsLoading(false);
       }
       console.warn('Failed to bootstrap auth session', error);
@@ -241,10 +302,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (nextProfile) {
             setProfile(nextProfile);
             await refreshTradespersonProfile(nextSession.user.id, nextProfile.role);
+            await refreshClientProfile(nextSession.user.id, nextProfile.role);
           }
         } else {
           setProfile(null);
           setTradespersonProfile(null);
+          setClientProfile(null);
         }
       };
 
@@ -252,6 +315,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (isMounted) {
           setProfile(null);
           setTradespersonProfile(null);
+          setClientProfile(null);
         }
         console.warn('Failed to sync auth state', error);
       });
@@ -268,12 +332,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       profile,
       tradespersonProfile,
+      clientProfile,
       isTradespersonProfileComplete: Boolean(
         tradespersonProfile &&
           tradespersonProfile.bio &&
           tradespersonProfile.bio.trim().length > 0 &&
           tradespersonProfile.hourly_rate &&
           tradespersonProfile.hourly_rate > 0,
+      ),
+      isClientProfileComplete: Boolean(
+        clientProfile &&
+          clientProfile.phone_number &&
+          clientProfile.phone_number.trim().length > 0 &&
+          clientProfile.default_address &&
+          clientProfile.default_address.trim().length > 0,
       ),
       isLoading,
       signIn: async ({ email, password }) => {
@@ -396,8 +468,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         await refreshProfile();
       },
+      updateClientProfile: async ({ phoneNumber, defaultAddress, city, state, postalCode }) => {
+        if (!session) {
+          throw new Error('No active session.');
+        }
+
+        if (profile?.role !== 'client') {
+          throw new Error('Solo perfiles de cliente pueden actualizar estos datos.');
+        }
+
+        const { error } = await supabase.from('client_profiles').upsert(
+          {
+            profile_id: session.user.id,
+            phone_number: phoneNumber,
+            default_address: defaultAddress,
+            city: city?.trim() || null,
+            state: state?.trim() || null,
+            postal_code: postalCode?.trim() || null,
+          },
+          { onConflict: 'profile_id' },
+        );
+
+        if (error) {
+          throw error;
+        }
+
+        await refreshProfile();
+      },
     }),
-    [isLoading, profile, session, tradespersonProfile],
+    [clientProfile, isLoading, profile, session, tradespersonProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

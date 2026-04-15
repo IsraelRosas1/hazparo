@@ -18,14 +18,23 @@ export default function ProfileScreen() {
     session,
     profile,
     tradespersonProfile,
+    clientProfile,
     isTradespersonProfileComplete,
+    isClientProfileComplete,
     updateTradespersonProfile,
+    updateClientProfile,
     signOut,
   } = useAuth();
   const [bioInput, setBioInput] = useState('');
   const [hourlyRateInput, setHourlyRateInput] = useState('');
   const [yearsExperienceInput, setYearsExperienceInput] = useState('0');
   const [isSavingProfessionalInfo, setIsSavingProfessionalInfo] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [addressInput, setAddressInput] = useState('');
+  const [cityInput, setCityInput] = useState('');
+  const [stateInput, setStateInput] = useState('');
+  const [postalCodeInput, setPostalCodeInput] = useState('');
+  const [isSavingClientInfo, setIsSavingClientInfo] = useState(false);
 
   useEffect(() => {
     setBioInput(tradespersonProfile?.bio ?? '');
@@ -36,6 +45,14 @@ export default function ProfileScreen() {
     );
     setYearsExperienceInput(String(tradespersonProfile?.years_experience ?? 0));
   }, [tradespersonProfile]);
+
+  useEffect(() => {
+    setPhoneInput(clientProfile?.phone_number ?? '');
+    setAddressInput(clientProfile?.default_address ?? '');
+    setCityInput(clientProfile?.city ?? '');
+    setStateInput(clientProfile?.state ?? '');
+    setPostalCodeInput(clientProfile?.postal_code ?? '');
+  }, [clientProfile]);
 
   const roleLabel = useMemo(() => {
     if (profile?.role === 'tradesperson') {
@@ -132,6 +149,36 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleSaveClientInfo = async () => {
+    if (!phoneInput.trim()) {
+      Alert.alert('Datos incompletos', 'Agrega un número de teléfono.');
+      return;
+    }
+
+    if (!addressInput.trim()) {
+      Alert.alert('Datos incompletos', 'Agrega una dirección principal.');
+      return;
+    }
+
+    setIsSavingClientInfo(true);
+    try {
+      await updateClientProfile({
+        phoneNumber: phoneInput.trim(),
+        defaultAddress: addressInput.trim(),
+        city: cityInput,
+        state: stateInput,
+        postalCode: postalCodeInput,
+      });
+      Alert.alert('Perfil actualizado', 'Tu perfil de cliente ya está completo.');
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'No se pudo actualizar el perfil de cliente.';
+      Alert.alert('Error', message);
+    } finally {
+      setIsSavingClientInfo(false);
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -198,6 +245,61 @@ export default function ProfileScreen() {
                 <ActivityIndicator color="#ffffff" />
               ) : (
                 <Text style={styles.completeButtonText}>Guardar Perfil Profesional</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {profile?.role === 'client' && !isClientProfileComplete && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Completa tu Perfil de Cliente</Text>
+          <View style={styles.professionalPromptCard}>
+            <Text style={styles.professionalPromptText}>
+              Agrega tus datos básicos para agilizar reservas y recomendaciones cercanas.
+            </Text>
+
+            <TextInput
+              value={phoneInput}
+              onChangeText={setPhoneInput}
+              keyboardType="phone-pad"
+              placeholder="Número de teléfono"
+              style={styles.input}
+            />
+            <TextInput
+              value={addressInput}
+              onChangeText={setAddressInput}
+              placeholder="Dirección principal"
+              style={styles.input}
+            />
+            <TextInput
+              value={cityInput}
+              onChangeText={setCityInput}
+              placeholder="Ciudad"
+              style={styles.input}
+            />
+            <TextInput
+              value={stateInput}
+              onChangeText={setStateInput}
+              placeholder="Estado"
+              style={styles.input}
+            />
+            <TextInput
+              value={postalCodeInput}
+              onChangeText={setPostalCodeInput}
+              placeholder="Código postal"
+              style={styles.input}
+            />
+
+            <TouchableOpacity
+              style={[styles.completeButton, isSavingClientInfo && styles.completeButtonDisabled]}
+              onPress={handleSaveClientInfo}
+              disabled={isSavingClientInfo}
+            >
+              {isSavingClientInfo ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.completeButtonText}>Guardar Perfil de Cliente</Text>
               )}
             </TouchableOpacity>
           </View>
