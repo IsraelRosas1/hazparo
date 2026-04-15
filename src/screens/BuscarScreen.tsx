@@ -75,6 +75,63 @@ export default function BuscarScreen() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [openDetails, setOpenDetails] = useState('');
 
+  const localizeTradespeople = (coords: { latitude: number; longitude: number }) => {
+    const localizedList = mockTradespeople.map((tp) => ({
+      ...tp,
+      location: getRandomLocation(coords),
+    }));
+
+    setUserLocation(coords);
+    setMasterTradespeople(localizedList);
+  };
+
+  const resolveReadableAddress = async (coords: { latitude: number; longitude: number }) => {
+    try {
+      const results = await Location.reverseGeocodeAsync(coords);
+      const first = results[0];
+
+      if (!first) {
+        return `Lat: ${coords.latitude.toFixed(4)}, Lon: ${coords.longitude.toFixed(4)}`;
+      }
+
+      const parts = [
+        first.streetNumber,
+        first.street,
+        first.district,
+        first.city,
+        first.region,
+      ].filter(Boolean);
+
+      if (parts.length === 0) {
+        return `Lat: ${coords.latitude.toFixed(4)}, Lon: ${coords.longitude.toFixed(4)}`;
+      }
+
+      return parts.join(', ');
+    } catch {
+      return `Lat: ${coords.latitude.toFixed(4)}, Lon: ${coords.longitude.toFixed(4)}`;
+    }
+  };
+
+  const detectAndFillAddress = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert('Ubicación', 'Permiso de ubicación denegado.');
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      const coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
+
+      localizeTradespeople(coords);
+      const readableAddress = await resolveReadableAddress(coords);
+      setAddress(readableAddress);
+    } catch {
+      Alert.alert('Ubicación', 'No se pudo detectar tu ubicación automáticamente.');
+    }
+  };
+
   const trades: TradeType[] = [
     'electrician',
     'bricklayer',
@@ -164,18 +221,9 @@ export default function BuscarScreen() {
           const loc = await Location.getCurrentPositionAsync({});
           coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
         }
-        const localizedList = mockTradespeople.map((tp) => ({
-          ...tp,
-          location: getRandomLocation(coords),
-        }));
-        setUserLocation(coords);
-        setMasterTradespeople(localizedList);
+        localizeTradespeople(coords);
       } catch (e) {
-        const localizedList = mockTradespeople.map((tp) => ({
-          ...tp,
-          location: getRandomLocation(INITIAL_LOCATION),
-        }));
-        setMasterTradespeople(localizedList);
+        localizeTradespeople(INITIAL_LOCATION);
       } finally {
         setLoading(false);
       }
@@ -253,17 +301,18 @@ export default function BuscarScreen() {
             placeholder="Introduce o cambia tu dirección"
             value={address}
             onChangeText={setAddress}
+            onFocus={() => {
+              detectAndFillAddress().catch(() => {
+                Alert.alert('Ubicación', 'No se pudo detectar tu ubicación automáticamente.');
+              });
+            }}
           />
           <TouchableOpacity
             style={{ marginLeft: 8 }}
             onPress={() => {
-              if (userLocation) {
-                setAddress(
-                  `Lat: ${userLocation.latitude.toFixed(4)}, Lon: ${userLocation.longitude.toFixed(4)}`,
-                );
-              } else {
-                Alert.alert('Ubicación', 'No se pudo obtener la ubicación.');
-              }
+              detectAndFillAddress().catch(() => {
+                Alert.alert('Ubicación', 'No se pudo detectar tu ubicación automáticamente.');
+              });
             }}
           >
             <Ionicons name="locate" size={24} color="#0b3d91" />
