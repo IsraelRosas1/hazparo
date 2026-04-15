@@ -321,6 +321,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (role === 'tradesperson') {
+          const { error: clearClientProfileError } = await supabase
+            .from('client_profiles')
+            .delete()
+            .eq('profile_id', userId);
+
+          if (clearClientProfileError) {
+            throw clearClientProfileError;
+          }
+
           const { error: tradespersonError } = await supabase.from('tradesperson_profiles').upsert(
             {
               profile_id: userId,
@@ -333,6 +342,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             throw tradespersonError;
           }
         } else {
+          const { error: clientProfileError } = await supabase.from('client_profiles').upsert(
+            {
+              profile_id: userId,
+            },
+            { onConflict: 'profile_id' },
+          );
+
+          if (clientProfileError) {
+            throw clientProfileError;
+          }
+
           const { error: cleanupError } = await supabase
             .from('tradesperson_profiles')
             .delete()
