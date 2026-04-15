@@ -22,13 +22,9 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
 
-const SEARCH_RADIUS_MIN = 5;
-const SEARCH_RADIUS_MAX = 100;
-const SEARCH_RADIUS_STEP = 5;
 const STORAGE_KEYS = {
   location: 'hazparo.buscar.location',
   address: 'hazparo.buscar.address',
-  radius: 'hazparo.buscar.radius',
 };
 
 const tradeIcons: Record<TradeType, keyof typeof Ionicons.glyphMap> = {
@@ -84,13 +80,6 @@ export default function BuscarScreen() {
   const [questionTradesperson, setQuestionTradesperson] = useState<Tradesperson | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [openDetails, setOpenDetails] = useState('');
-  const [searchRadius, setSearchRadius] = useState(25);
-
-  const clampRadius = (value: number) =>
-    Math.max(
-      SEARCH_RADIUS_MIN,
-      Math.min(SEARCH_RADIUS_MAX, Math.round(value / SEARCH_RADIUS_STEP) * SEARCH_RADIUS_STEP),
-    );
 
   const milesBetween = (
     a: { latitude: number; longitude: number },
@@ -109,12 +98,6 @@ export default function BuscarScreen() {
 
     const arc = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
     return earthRadiusMiles * arc;
-  };
-
-  const saveSearchRadius = async (nextRadius: number) => {
-    const normalized = clampRadius(nextRadius);
-    setSearchRadius(normalized);
-    await AsyncStorage.setItem(STORAGE_KEYS.radius, String(normalized));
   };
 
   const localizeTradespeople = (coords: { latitude: number; longitude: number }) => {
@@ -261,10 +244,9 @@ export default function BuscarScreen() {
   useEffect(() => {
     const hydrateBuscarPreferences = async () => {
       try {
-        const [storedLocation, storedAddress, storedRadius] = await Promise.all([
+        const [storedLocation, storedAddress] = await Promise.all([
           AsyncStorage.getItem(STORAGE_KEYS.location),
           AsyncStorage.getItem(STORAGE_KEYS.address),
-          AsyncStorage.getItem(STORAGE_KEYS.radius),
         ]);
 
         if (storedLocation) {
@@ -283,13 +265,6 @@ export default function BuscarScreen() {
 
         if (storedAddress) {
           setAddress(storedAddress);
-        }
-
-        if (storedRadius) {
-          const parsedRadius = Number(storedRadius);
-          if (Number.isFinite(parsedRadius)) {
-            setSearchRadius(clampRadius(parsedRadius));
-          }
         }
       } catch {
         // Ignore malformed cache and continue with live GPS.
@@ -342,7 +317,6 @@ export default function BuscarScreen() {
 
     filtered = filtered
       .map((tp) => ({ ...tp, distanceMiles: milesBetween(userLocation, tp.location) }))
-      .filter((tp) => tp.distanceMiles <= searchRadius)
       .sort((a, b) => a.distanceMiles - b.distanceMiles);
 
     return filtered;
@@ -417,32 +391,6 @@ export default function BuscarScreen() {
           >
             <Ionicons name="locate" size={24} color="#0b3d91" />
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.radiusRow}>
-          <Text style={styles.radiusLabel}>Radio de búsqueda: {searchRadius} mi</Text>
-          <View style={styles.radiusActions}>
-            <TouchableOpacity
-              style={styles.radiusButton}
-              onPress={() => {
-                saveSearchRadius(searchRadius - SEARCH_RADIUS_STEP).catch(() => {
-                  Alert.alert('Radio', 'No se pudo actualizar el radio de búsqueda.');
-                });
-              }}
-            >
-              <Ionicons name="remove" size={18} color="#0b3d91" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.radiusButton}
-              onPress={() => {
-                saveSearchRadius(searchRadius + SEARCH_RADIUS_STEP).catch(() => {
-                  Alert.alert('Radio', 'No se pudo actualizar el radio de búsqueda.');
-                });
-              }}
-            >
-              <Ionicons name="add" size={18} color="#0b3d91" />
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
 
@@ -733,28 +681,6 @@ const styles = StyleSheet.create({
   tradespersonName: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 2 },
   tradespersonTrade: { fontSize: 13, color: '#6b7280' },
   tradespersonDistance: { fontSize: 12, color: '#2563eb', marginTop: 2 },
-  radiusRow: {
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  radiusLabel: {
-    color: '#0b3d91',
-    fontWeight: '600',
-  },
-  radiusActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  radiusButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#e8f0ff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   emptyState: { justifyContent: 'center', alignItems: 'center', paddingVertical: 40 },
   emptyStateText: { fontSize: 16, color: '#9ca3af', marginTop: 12 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
