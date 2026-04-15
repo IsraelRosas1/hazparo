@@ -11,6 +11,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
@@ -20,6 +21,15 @@ import { Tradesperson, TradeType } from '../types';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'MainTabs'>;
+
+const SEARCH_RADIUS_MIN = 5;
+const SEARCH_RADIUS_MAX = 100;
+const SEARCH_RADIUS_STEP = 5;
+const STORAGE_KEYS = {
+  location: 'hazparo.buscar.location',
+  address: 'hazparo.buscar.address',
+  radius: 'hazparo.buscar.radius',
+};
 
 const tradeIcons: Record<TradeType, keyof typeof Ionicons.glyphMap> = {
   electrician: 'flash',
@@ -74,6 +84,38 @@ export default function BuscarScreen() {
   const [questionTradesperson, setQuestionTradesperson] = useState<Tradesperson | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [openDetails, setOpenDetails] = useState('');
+  const [searchRadius, setSearchRadius] = useState(25);
+
+  const clampRadius = (value: number) =>
+    Math.max(
+      SEARCH_RADIUS_MIN,
+      Math.min(SEARCH_RADIUS_MAX, Math.round(value / SEARCH_RADIUS_STEP) * SEARCH_RADIUS_STEP),
+    );
+
+  const milesBetween = (
+    a: { latitude: number; longitude: number },
+    b: { latitude: number; longitude: number },
+  ) => {
+    const toRadians = (n: number) => (n * Math.PI) / 180;
+    const earthRadiusMiles = 3958.8;
+    const deltaLat = toRadians(b.latitude - a.latitude);
+    const deltaLon = toRadians(b.longitude - a.longitude);
+    const latA = toRadians(a.latitude);
+    const latB = toRadians(b.latitude);
+
+    const haversine =
+      Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+      Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2) * Math.cos(latA) * Math.cos(latB);
+
+    const arc = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+    return earthRadiusMiles * arc;
+  };
+
+  const saveSearchRadius = async (nextRadius: number) => {
+    const normalized = clampRadius(nextRadius);
+    setSearchRadius(normalized);
+    await AsyncStorage.setItem(STORAGE_KEYS.radius, String(normalized));
+  };
 
   const localizeTradespeople = (coords: { latitude: number; longitude: number }) => {
     const localizedList = mockTradespeople.map((tp) => ({
@@ -127,6 +169,10 @@ export default function BuscarScreen() {
       localizeTradespeople(coords);
       const readableAddress = await resolveReadableAddress(coords);
       setAddress(readableAddress);
+      await AsyncStorage.multiSet([
+        [STORAGE_KEYS.location, JSON.stringify(coords)],
+        [STORAGE_KEYS.address, readableAddress],
+      ]);
     } catch {
       Alert.alert('Ubicación', 'No se pudo detectar tu ubicación automáticamente.');
     }
@@ -213,6 +259,47 @@ export default function BuscarScreen() {
     }, []);
 
   useEffect(() => {
+    const hydrateBuscarPreferences = async () => {
+      try {
+        const [storedLocation, storedAddress, storedRadius] = await Promise.all([
+          AsyncStorage.getItem(STORAGE_KEYS.location),
+          AsyncStorage.getItem(STORAGE_KEYS.address),
+          AsyncStorage.getItem(STORAGE_KEYS.radius),
+        ]);
+
+        if (storedLocation) {
+          const parsedLocation = JSON.parse(storedLocation) as {
+            latitude: number;
+            longitude: number;
+          };
+
+          if (
+            typeof parsedLocation.latitude === 'number' &&
+            typeof parsedLocation.longitude === 'number'
+          ) {
+            localizeTradespeople(parsedLocation);
+          }
+        }
+
+        if (storedAddress) {
+          setAddress(storedAddress);
+        }
+
+        if (storedRadius) {
+          const parsedRadius = Number(storedRadius);
+          if (Number.isFinite(parsedRadius)) {
+            setSearchRadius(clampRadius(parsedRadius));
+          }
+        }
+      } catch {
+        // Ignore malformed cache and continue with live GPS.
+      }
+    };
+
+    hydrateBuscarPreferences().catch(() => {
+      // Ignore cache hydration issues.
+    });
+
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -222,6 +309,13 @@ export default function BuscarScreen() {
           coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
         }
         localizeTradespeople(coords);
+
+        const readableAddress = await resolveReadableAddress(coords);
+        setAddress((prevAddress) => prevAddress || readableAddress);
+        await AsyncStorage.multiSet([
+          [STORAGE_KEYS.location, JSON.stringify(coords)],
+          [STORAGE_KEYS.address, readableAddress],
+        ]);
       } catch (e) {
         localizeTradespeople(INITIAL_LOCATION);
       } finally {
@@ -245,6 +339,12 @@ export default function BuscarScreen() {
       const q = searchModalQuery.toLowerCase();
       filtered = filtered.filter((tp) => tp.name.toLowerCase().includes(q));
     }
+
+    filtered = filtered
+      .map((tp) => ({ ...tp, distanceMiles: milesBetween(userLocation, tp.location) }))
+      .filter((tp) => tp.distanceMiles <= searchRadius)
+      .sort((a, b) => a.distanceMiles - b.distanceMiles);
+
     return filtered;
   };
 
@@ -317,6 +417,32 @@ export default function BuscarScreen() {
           >
             <Ionicons name="locate" size={24} color="#0b3d91" />
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.radiusRow}>
+          <Text style={styles.radiusLabel}>Radio de búsqueda: {searchRadius} mi</Text>
+          <View style={styles.radiusActions}>
+            <TouchableOpacity
+              style={styles.radiusButton}
+              onPress={() => {
+                saveSearchRadius(searchRadius - SEARCH_RADIUS_STEP).catch(() => {
+                  Alert.alert('Radio', 'No se pudo actualizar el radio de búsqueda.');
+                });
+              }}
+            >
+              <Ionicons name="remove" size={18} color="#0b3d91" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.radiusButton}
+              onPress={() => {
+                saveSearchRadius(searchRadius + SEARCH_RADIUS_STEP).catch(() => {
+                  Alert.alert('Radio', 'No se pudo actualizar el radio de búsqueda.');
+                });
+              }}
+            >
+              <Ionicons name="add" size={18} color="#0b3d91" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -514,6 +640,9 @@ export default function BuscarScreen() {
                   <Text style={styles.tradespersonTrade}>
                     {tradeLabels[tradesperson.trade]} • ⭐ {tradesperson.rating.toFixed(1)}
                   </Text>
+                  <Text style={styles.tradespersonDistance}>
+                    A {milesBetween(userLocation, tradesperson.location).toFixed(1)} mi de ti
+                  </Text>
                 </View>
               </TouchableOpacity>
               <View style={{ alignItems: 'flex-end' }}>
@@ -603,6 +732,29 @@ const styles = StyleSheet.create({
   tradespersonInfo: { flex: 1, justifyContent: 'center' },
   tradespersonName: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 2 },
   tradespersonTrade: { fontSize: 13, color: '#6b7280' },
+  tradespersonDistance: { fontSize: 12, color: '#2563eb', marginTop: 2 },
+  radiusRow: {
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  radiusLabel: {
+    color: '#0b3d91',
+    fontWeight: '600',
+  },
+  radiusActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  radiusButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#e8f0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   emptyState: { justifyContent: 'center', alignItems: 'center', paddingVertical: 40 },
   emptyStateText: { fontSize: 16, color: '#9ca3af', marginTop: 12 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
